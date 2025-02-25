@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity"
+    android:orientation="vertical">
+
+    <!-- Top Section with Image and Create Account -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- Background ImageView (Not stretched) -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="background"
+            android:scaleType="centerCrop"
+            android:src="@drawable/background" />
+
+        <!-- Create Account TextView -->
+        <TextView
+            android:id="@+id/txt_create_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="+ CREATE ACCOUNT"
+            android:textColor="@color/colorText"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <!-- Form Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorBackground"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_weight="3"> <!-- Increased weight for form space -->
+
+        <!-- Email Input Field -->
+        <EditText
+            android:id="@+id/edt_mail"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/myTextColor"
+            android:textColorHint="@color/myTextColor"
+            android:drawableEnd="@drawable/ic_email"
+            android:drawablePadding="16dp"
+            android:layout_marginBottom="16dp"/> <!-- Added margin below the email field -->
+
+        <!-- Password Input Field -->
+        <EditText
+            android:id="@+id/edt_password"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/myTextColor"
+            android:textColorHint="@color/myTextColor"
+            android:drawableEnd="@drawable/ic_lock"
+            android:drawablePadding="16dp"/>
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/button_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="#431f63"
+        android:text="Login"
+        android:textSize="20sp"
+        android:textColor="@android:color/white"
+        style="@style/Widget.AppCompat.Button" />
+
+
+</LinearLayout>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    tools:context=".RegisterActivity">
+
+    <!-- Top Section with Image and Register Title -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- Background ImageView (Not stretched) -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="background"
+            android:scaleType="centerCrop"
+            android:src="@drawable/background" />
+
+        <!-- Register Account TextView -->
+        <TextView
+            android:id="@+id/txt_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="+ REGISTER ACCOUNT"
+            android:textColor="@color/colorText"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <!-- Form Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorBackground"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_weight="3">
+
+        <!-- Name Input -->
+        <EditText
+            android:id="@+id/edt_name"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="Full Name"
+            android:inputType="textPersonName"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/myTextColor"
+            android:textColorHint="@color/myTextColor"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Email Input -->
+        <EditText
+            android:id="@+id/edt_email"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/myTextColor"
+            android:textColorHint="@color/myTextColor"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Password Input -->
+        <EditText
+            android:id="@+id/edt_password"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/myTextColor"
+            android:textColorHint="@color/myTextColor"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Row: Height & Weight -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="16dp">
+
+            <!-- Height Input -->
+            <EditText
+                android:id="@+id/edt_height"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="56dp"
+                android:background="@drawable/edit_text_background"
+                android:hint="Height (cm)"
+                android:inputType="number"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="@color/myTextColor"
+                android:textColorHint="@color/myTextColor"
+                android:layout_marginEnd="10dp"/>
+
+            <!-- Weight Input -->
+            <EditText
+                android:id="@+id/edt_weight"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="56dp"
+                android:background="@drawable/edit_text_background"
+                android:hint="Weight (kg)"
+                android:inputType="number"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="@color/myTextColor"
+                android:textColorHint="@color/myTextColor"/>
+        </LinearLayout>
+
+        <!-- Gender Dropdown -->
+        <Spinner
+            android:id="@+id/spinner_gender"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/edit_text_background"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textAlignment="center"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Register Button -->
+        <Button
+            android:id="@+id/button_register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#431f63"
+            android:text="Register"
+            android:textSize="20sp"
+            android:textColor="@android:color/white"
+            style="@style/Widget.AppCompat.Button"/>
+    </LinearLayout>
+</LinearLayout>
