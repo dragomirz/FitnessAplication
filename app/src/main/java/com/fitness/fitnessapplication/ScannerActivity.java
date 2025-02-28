@@ -44,7 +44,9 @@ public class ScannerActivity extends AppCompatActivity {
 
 
     private void scanBarcode() {
+        // Expected in emulator: 606272 039302
         ScanOptions options = new ScanOptions();
+        options.setOrientationLocked(false);
         options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES);
         options.setPrompt("Scan a barcode");
         options.setCameraId(0);  // Use the rear camera

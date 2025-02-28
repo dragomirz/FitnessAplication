@@ -33,6 +33,11 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".HomeActivity" />
         <activity android:name=".ScannerActivity" />
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="fullSensor"
+            tools:replace="android:screenOrientation"
+            android:stateNotNeeded="true"/>
     </application>
 
 </manifest>
