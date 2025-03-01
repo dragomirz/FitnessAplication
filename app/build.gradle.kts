@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.adapter.rxjava3)
     //zxing
     implementation(libs.zxing.android.embedded)
+    implementation(libs.picasso)
 
 
 
