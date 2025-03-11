@@ -29,26 +29,10 @@
         android:layout_marginTop="16dp" />
     <ProgressBar
         android:id="@+id/calories_progress"
-
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="2000"
-        />
-    <!-- Add after calories_progress -->
-    <TextView
-        android:id="@+id/proteins_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Proteins Progress"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp" />
-    <ProgressBar
-        android:id="@+id/proteins_progress"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="50" /> <!-- Example: 50g daily --><!-- Example goal: 2000 kcal -->
+        android:max="2000" />
 
     <!-- Navigation Buttons -->
     <LinearLayout
@@ -74,11 +58,5 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="User Info" />
-        <Button
-            android:id="@+id/btn_test_auth"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Test Auth" />
     </LinearLayout>
 </LinearLayout>

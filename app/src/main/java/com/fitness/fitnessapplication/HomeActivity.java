@@ -3,7 +3,6 @@ package com.fitness.fitnessapplication;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,10 +11,13 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import com.fitness.fitnessapplication.DataModels.DailyLogResponse;
 import com.fitness.fitnessapplication.RetroFit.ApiClient;
 import com.fitness.fitnessapplication.RetroFit.ApiService;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -25,6 +27,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView totalsView;
     private ProgressBar caloriesProgress;
     private String[] periods = {"Daily", "Weekly", "Monthly"};
+    private ActivityResultLauncher<ScanOptions> barcodeLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +40,6 @@ public class HomeActivity extends AppCompatActivity {
         Button btnHome = findViewById(R.id.btn_home);
         Button btnScanner = findViewById(R.id.btn_scanner);
         Button btnUserInfo = findViewById(R.id.btn_user_info);
-        Button btnTestAuth = findViewById(R.id.btn_test_auth);
 
         // Set up Spinner
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, periods);
@@ -51,24 +53,45 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                fetchLogs("Daily"); // Default
+                fetchLogs("Daily");
+            }
+        });
+
+        // Set up Barcode Launcher
+        barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() == null) {
+                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+            } else {
+                String barcode = result.getContents();
+                Intent intent = new Intent(HomeActivity.this, ProductDetailActivity.class);
+                intent.putExtra("barcode", barcode);
+                startActivity(intent);
             }
         });
 
         // Button Listeners
         btnHome.setOnClickListener(v -> fetchLogs(spinnerPeriod.getSelectedItem().toString()));
-        btnScanner.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ScannerActivity.class)));
+        btnScanner.setOnClickListener(v -> scanBarcode());
         btnUserInfo.setOnClickListener(v -> { /* Implement later */ });
-        btnTestAuth.setOnClickListener(v -> testAuthentication());
 
         // Initial fetch
         fetchLogs("Daily");
     }
 
+    private void scanBarcode() {
+        ScanOptions options = new ScanOptions();
+        options.setOrientationLocked(false);
+        options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES);
+        options.setPrompt("Scan a barcode");
+        options.setCameraId(0);
+        options.setBeepEnabled(false);
+        options.setBarcodeImageEnabled(true);
+        barcodeLauncher.launch(options);
+    }
+
     private void fetchLogs(String period) {
         ApiService apiService = ApiClient.getApiService(this);
         String date = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
-        Log.d("FRONTEND_DATE", "Sending date: " + date);
         Call<DailyLogResponse> call;
 
         switch (period) {
@@ -109,33 +132,6 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<DailyLogResponse> call, Throwable t) {
                 totalsView.setText("Error: " + t.getMessage());
-            }
-        });
-    }
-
-    private void testAuthentication() {
-        ApiService apiService = ApiClient.getApiService(this);
-        Call<Void> call = apiService.testAuthentication();
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(HomeActivity.this, "Authentication successful!", Toast.LENGTH_SHORT).show();
-                } else if (response.code() == 401 || response.code() == 403) {
-                    Toast.makeText(HomeActivity.this, "Token expired or invalid. Please log in again.", Toast.LENGTH_LONG).show();
-                    SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-                    sharedPreferences.edit().remove("token").apply();
-                    Intent intent = new Intent(HomeActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Toast.makeText(HomeActivity.this, "Authentication failed: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(HomeActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
