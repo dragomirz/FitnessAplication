@@ -39,7 +39,6 @@
             tools:replace="android:screenOrientation"
             android:stateNotNeeded="true"/>
         <activity android:name=".ProductDetailActivity" />
-        <activity android:name=".DailyLogActivity" />
     </application>
 
 </manifest>

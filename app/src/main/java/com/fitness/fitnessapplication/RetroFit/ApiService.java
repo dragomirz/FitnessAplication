@@ -25,5 +25,5 @@ public interface ApiService {
     Call<Void> logFood(@Body FoodLog log);
 
     @GET("/daily-logs")
-    Call<DailyLogResponse> getDailyLogs(@Query("date") String date);
+    Call<DailyLogResponse> getDailyLogs(@Query("date") String date, @Query("range") String range);
 }

@@ -1,50 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Period Selector -->
+    <Spinner
+        android:id="@+id/spinner_period"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Nutritional Totals -->
+    <TextView
+        android:id="@+id/totals_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginTop="16dp" />
+
+    <!-- Progress Visuals (Calories as example) -->
+    <TextView
+        android:id="@+id/calories_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calories Progress"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp" />
+    <ProgressBar
+        android:id="@+id/calories_progress"
+
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="2000"
+        />
+    <!-- Add after calories_progress -->
+    <TextView
+        android:id="@+id/proteins_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Proteins Progress"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp" />
+    <ProgressBar
+        android:id="@+id/proteins_progress"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="50" /> <!-- Example: 50g daily --><!-- Example goal: 2000 kcal -->
+
+    <!-- Navigation Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="#E0E0E0"
         android:orientation="horizontal"
-        android:padding="8dp">
-        <Button
-            android:id="@+id/btn_daily_log"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View Daily Log"/>
-
+        android:layout_marginTop="16dp">
         <Button
             android:id="@+id/btn_home"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:text="Home" />
-
         <Button
             android:id="@+id/btn_scanner"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Scanner" />
-
+            android:layout_height="wrap_content"
+            android:text="Scan" />
         <Button
             android:id="@+id/btn_user_info"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:text="User Info" />
-
+        <Button
+            android:id="@+id/btn_test_auth"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Test Auth" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_test_auth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="Test Auth" />
-
-</RelativeLayout>
+</LinearLayout>
