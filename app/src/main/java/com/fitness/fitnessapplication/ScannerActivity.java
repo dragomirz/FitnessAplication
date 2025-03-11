@@ -69,10 +69,12 @@ public class ScannerActivity extends AppCompatActivity {
                     ProductResponse.Product product = response.body().getProduct();
                     Intent intent = new Intent(ScannerActivity.this, ProductDetailActivity.class);
                     intent.putExtra("product_name", product.getProductName());
-                    intent.putExtra("calories", product.getNutriments().getCalories());
-                    intent.putExtra("proteins", product.getNutriments().getProteins());
-                    intent.putExtra("carbs", product.getNutriments().getCarbs());
-                    intent.putExtra("fats", product.getNutriments().getFats());
+                    intent.putExtra("calories", product.getNutriments() != null ? product.getNutriments().getCalories() : 0f);
+                    intent.putExtra("proteins", product.getNutriments() != null ? product.getNutriments().getProteins() : 0f);
+                    intent.putExtra("carbs", product.getNutriments() != null ? product.getNutriments().getCarbs() : 0f);
+                    intent.putExtra("fats", product.getNutriments() != null ? product.getNutriments().getFats() : 0f);
+                    intent.putExtra("saturated_fat", product.getNutriments() != null ? product.getNutriments().getSaturatedFat() : 0f);
+                    intent.putExtra("sugars", product.getNutriments() != null ? product.getNutriments().getSugars() : 0f);
                     intent.putExtra("image_url", product.getImageUrl());
                     startActivity(intent);
                 } else {

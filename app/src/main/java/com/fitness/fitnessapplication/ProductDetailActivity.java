@@ -17,7 +17,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ProductDetailActivity extends AppCompatActivity {
-    private float caloriesPer100g, proteinsPer100g, carbsPer100g, fatsPer100g;
+    private float caloriesPer100g, proteinsPer100g, carbsPer100g, fatsPer100g, saturatedFatPer100g, sugarsPer100g;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +38,11 @@ public class ProductDetailActivity extends AppCompatActivity {
             proteinsPer100g = extras.getFloat("proteins", 0);
             carbsPer100g = extras.getFloat("carbs", 0);
             fatsPer100g = extras.getFloat("fats", 0);
+            saturatedFatPer100g = extras.getFloat("saturated_fat", 0);
+            sugarsPer100g = extras.getFloat("sugars", 0);
             caloriesView.setText("Calories: " + caloriesPer100g + " kcal/100g");
-            macrosView.setText(String.format("P: %.1fg | C: %.1fg | F: %.1fg", proteinsPer100g, carbsPer100g, fatsPer100g));
+            macrosView.setText(String.format("P: %.1fg | C: %.1fg | F: %.1fg\nSat. Fat: %.1fg | Sugars: %.1fg",
+                    proteinsPer100g, carbsPer100g, fatsPer100g, saturatedFatPer100g, sugarsPer100g));
             String imageUrl = extras.getString("image_url");
             if (imageUrl != null && !imageUrl.isEmpty()) {
                 Picasso.get().load(imageUrl).into(imageView);
@@ -65,7 +68,9 @@ public class ProductDetailActivity extends AppCompatActivity {
                 caloriesPer100g * factor,
                 proteinsPer100g * factor,
                 carbsPer100g * factor,
-                fatsPer100g * factor
+                fatsPer100g * factor,
+                saturatedFatPer100g * factor,
+                sugarsPer100g * factor
         );
 
         ApiService apiService = ApiClient.getApiService(this);

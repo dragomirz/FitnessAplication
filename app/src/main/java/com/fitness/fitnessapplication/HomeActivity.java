@@ -23,6 +23,8 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        Button btnDailyLog = findViewById(R.id.btn_daily_log);
+        btnDailyLog.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, DailyLogActivity.class)));
         Button btnHome = findViewById(R.id.btn_home);
         Button btnScanner = findViewById(R.id.btn_scanner);
         Button btnUserInfo = findViewById(R.id.btn_user_info);
