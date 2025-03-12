@@ -63,6 +63,7 @@ dependencies {
     //zxing
     implementation(libs.zxing.android.embedded)
     implementation(libs.picasso)
+    implementation(libs.cardview)
 
 
 

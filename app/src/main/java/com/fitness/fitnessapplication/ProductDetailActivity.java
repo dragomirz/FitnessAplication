@@ -28,6 +28,10 @@ public class ProductDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Hide the ActionBar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
         setContentView(R.layout.activity_product_detail);
 
         TextView nameView = findViewById(R.id.product_name);
@@ -64,8 +68,16 @@ public class ProductDetailActivity extends AppCompatActivity {
         logButton.setOnClickListener(v -> {
             String qtyStr = quantityInput.getText().toString();
             if (!qtyStr.isEmpty()) {
-                float quantity = Float.parseFloat(qtyStr);
-                logConsumption(quantity);
+                try {
+                    float quantity = Float.parseFloat(qtyStr);
+                    if (quantity <= 0) {
+                        Toast.makeText(this, "Quantity must be positive", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    logConsumption(quantity);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Invalid quantity", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 Toast.makeText(this, "Enter quantity", Toast.LENGTH_SHORT).show();
             }
@@ -85,7 +97,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getProduct() != null) {
                     ProductResponse.Product product = response.body().getProduct();
-                    productName = product.getProductName();
+                    productName = product.getProductName() != null ? product.getProductName() : "Unknown Product";
                     caloriesPer100g = product.getNutriments() != null ? product.getNutriments().getCalories() : 0f;
                     proteinsPer100g = product.getNutriments() != null ? product.getNutriments().getProteins() : 0f;
                     carbsPer100g = product.getNutriments() != null ? product.getNutriments().getCarbs() : 0f;
