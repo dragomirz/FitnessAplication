@@ -1,148 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:fitsSystemWindows="true"
-    tools:context=".RegisterActivity">
+    android:background="@drawable/gradient"
+    android:gravity="center"
+    android:padding="32dp">
 
-    <!-- Top Section with Image and Register Title -->
-    <FrameLayout
+    <!-- App Logo -->
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/icon"
+    android:layout_marginBottom="32dp" />
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Account"
+        android:textSize="32sp"
+        android:textColor="@color/buttonText"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Name Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/name_input_layout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content"
+        android:hint="Name"
+        android:textColorHint="@color/textSecondary"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="@color/colorPrimary"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp">
 
-        <!-- Background ImageView (Not stretched) -->
-        <ImageView
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="background"
-            android:scaleType="centerCrop"
-            android:src="@drawable/background" />
+            android:textColor="@color/textPrimary" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Register Account TextView -->
-        <TextView
-            android:id="@+id/txt_register"
-            android:layout_width="wrap_content"
+    <!-- Email Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/email_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Email"
+        android:textColorHint="@color/textSecondary"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="@color/colorPrimary"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_email"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:text="+ REGISTER ACCOUNT"
-            android:textColor="@color/colorText"
-            android:textStyle="bold" />
-    </FrameLayout>
+            android:inputType="textEmailAddress"
+            android:textColor="@color/textPrimary" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Form Section -->
+    <!-- Password Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Password"
+        android:textColorHint="@color/textSecondary"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="@color/colorPrimary"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:textColor="@color/textPrimary" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Height and Weight on the Same Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorBackground"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:layout_weight="3">
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
 
-        <!-- Name Input -->
-        <EditText
-            android:id="@+id/edt_name"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/edit_text_background"
-            android:hint="Full Name"
-            android:inputType="textPersonName"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/myTextColor"
-            android:textColorHint="@color/myTextColor"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Email Input -->
-        <EditText
-            android:id="@+id/edt_email"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/edit_text_background"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/myTextColor"
-            android:textColorHint="@color/myTextColor"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Password Input -->
-        <EditText
-            android:id="@+id/edt_password"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/edit_text_background"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/myTextColor"
-            android:textColorHint="@color/myTextColor"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Row: Height & Weight -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Height Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/height_input_layout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            android:layout_marginBottom="16dp">
+            android:layout_weight="1"
+            android:hint="Height (cm)"
+            android:textColorHint="@color/textSecondary"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/colorPrimary"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
+            android:layout_marginEnd="8dp">
 
-            <!-- Height Input -->
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_height"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="56dp"
-                android:background="@drawable/edit_text_background"
-                android:hint="Height (cm)"
-                android:inputType="number"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/myTextColor"
-                android:textColorHint="@color/myTextColor"
-                android:layout_marginEnd="10dp"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:textColor="@color/textPrimary" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Weight Input -->
-            <EditText
+        <!-- Weight Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/weight_input_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Weight (kg)"
+            android:textColorHint="@color/textSecondary"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/colorPrimary"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
+            android:layout_marginStart="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_weight"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="56dp"
-                android:background="@drawable/edit_text_background"
-                android:hint="Weight (kg)"
-                android:inputType="number"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/myTextColor"
-                android:textColorHint="@color/myTextColor"/>
-        </LinearLayout>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:textColor="@color/textPrimary" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
 
-        <!-- Gender Dropdown -->
+    <!-- Styled Gender Spinner -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Gender"
+        android:textColorHint="@color/textSecondary"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="@color/colorPrimary"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxBackgroundColor="@color/cardBackground">
+
         <Spinner
             android:id="@+id/spinner_gender"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/edit_text_background"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textAlignment="center"
-            android:layout_marginBottom="20dp"/>
+            android:layout_height="62dp"
+            android:padding="12dp"
+            android:spinnerMode="dropdown" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Register Button -->
-        <Button
-            android:id="@+id/button_register"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="#431f63"
-            android:text="Register"
-            android:textSize="20sp"
-            android:textColor="@android:color/white"
-            style="@style/Widget.AppCompat.Button"/>
-    </LinearLayout>
+    <!-- Register Button -->
+    <Button
+        android:id="@+id/button_register"
+        style="@style/RoundedButton"
+        android:layout_width="match_parent"
+        android:layout_marginTop="32dp"
+        android:text="Register"
+        android:backgroundTint="@color/colorSecondary" />
 </LinearLayout>
