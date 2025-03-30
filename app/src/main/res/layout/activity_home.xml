@@ -1,19 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/gradient"
-    android:padding="16dp">
+    android:background="@drawable/gradient" android:padding="16dp">
 
-    <!-- Calories Progress with Inner Text -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Select Period"
+        android:textColorHint="@color/textSecondary" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        app:boxStrokeColor="@color/colorPrimary" app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp">
+
+        <AutoCompleteTextView
+            android:id="@+id/period_dropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:editable="false"
+            android:inputType="none"
+            android:padding="12dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <FrameLayout
+        android:id="@+id/daily_monthly_calorie_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="32dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:visibility="visible">
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/calories_progress"
@@ -40,14 +62,12 @@
                 android:text="0"
                 android:textSize="28sp"
                 android:textStyle="bold"
-                android:textColor="@color/textPrimary" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Calories"
-                android:textSize="16sp"
-                android:textColor="@color/textPrimary" />
+                android:textColor="@color/textPrimary" /> <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Calories"
+            android:textSize="16sp"
+            android:textColor="@color/textPrimary" />
 
             <TextView
                 android:id="@+id/calorie_goal"
@@ -60,32 +80,21 @@
         </LinearLayout>
     </FrameLayout>
 
-    <!-- Period Selector -->
-    <com.google.android.material.textfield.TextInputLayout
+    <LinearLayout
+        android:id="@+id/weekly_bar_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Select Period"
-        android:textColorHint="@color/textSecondary"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        app:boxStrokeColor="@color/colorPrimary"
-        app:boxCornerRadiusBottomEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusTopStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp">
+        android:layout_height="200dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="16dp"
+        android:baselineAligned="false"
+        android:gravity="bottom"
+        android:visibility="gone" > {/* Initially hidden */}
+    </LinearLayout>
 
-        <AutoCompleteTextView
-            android:id="@+id/period_dropdown"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:editable="false"
-            android:inputType="none"
-            android:padding="12dp" />
-    </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Nutritional Totals Card -->
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/nutrition_summary_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="16dp"
@@ -99,6 +108,7 @@
             android:padding="16dp">
 
             <TextView
+                android:id="@+id/nutrition_summary_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Nutrition Summary"
@@ -107,25 +117,21 @@
                 android:textColor="@color/textPrimary"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Protein Progress -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="12dp">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Protein"
                         android:textColor="@color/textPrimary" />
-
                     <TextView
                         android:id="@+id/protein_value"
                         android:layout_width="wrap_content"
@@ -133,36 +139,30 @@
                         android:text="0g"
                         android:textColor="@color/textPrimary" />
                 </LinearLayout>
-
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/protein_progress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    app:indicatorColor="@color/proteinColor"
-                    app:trackColor="@color/textSecondary"
+                    app:indicatorColor="@color/proteinColor" app:trackColor="@color/textSecondary"
                     app:trackThickness="4dp" />
             </LinearLayout>
 
-            <!-- Carbs Progress -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="12dp">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Carbs"
                         android:textColor="@color/textPrimary" />
-
                     <TextView
                         android:id="@+id/carbs_value"
                         android:layout_width="wrap_content"
@@ -170,36 +170,30 @@
                         android:text="0g"
                         android:textColor="@color/textPrimary" />
                 </LinearLayout>
-
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/carbs_progress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    app:indicatorColor="@color/carbsColor"
-                    app:trackColor="@color/textSecondary"
+                    app:indicatorColor="@color/carbsColor" app:trackColor="@color/textSecondary"
                     app:trackThickness="4dp" />
             </LinearLayout>
 
-            <!-- Fats Progress -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="12dp">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Fats"
                         android:textColor="@color/textPrimary" />
-
                     <TextView
                         android:id="@+id/fats_value"
                         android:layout_width="wrap_content"
@@ -207,35 +201,29 @@
                         android:text="0g"
                         android:textColor="@color/textPrimary" />
                 </LinearLayout>
-
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/fats_progress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    app:indicatorColor="@color/fatsColor"
-                    app:trackColor="@color/textSecondary"
+                    app:indicatorColor="@color/fatsColor" app:trackColor="@color/textSecondary"
                     app:trackThickness="4dp" />
             </LinearLayout>
 
-            <!-- Sugar Progress -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Sugars"
                         android:textColor="@color/textPrimary" />
-
                     <TextView
                         android:id="@+id/sugar_value"
                         android:layout_width="wrap_content"
@@ -243,26 +231,22 @@
                         android:text="0g"
                         android:textColor="@color/textPrimary" />
                 </LinearLayout>
-
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/sugar_progress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    app:indicatorColor="@color/sugarColor"
-                    app:trackColor="@color/textSecondary"
+                    app:indicatorColor="@color/sugarColor" app:trackColor="@color/textSecondary"
                     app:trackThickness="4dp" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Spacer to push buttons to bottom -->
     <View
         android:layout_width="match_parent"
-        android:layout_height="306dp"
+        android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Bottom Navigation Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -272,8 +256,7 @@
 
         <Button
             android:id="@+id/btn_home"
-            style="@style/RoundedButton"
-            android:layout_width="0dp"
+            style="@style/RoundedButton" android:layout_width="0dp"
             android:layout_weight="1"
             android:text="Home"
             android:layout_marginEnd="8dp" />

@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout; // Import LinearLayout if hiding content
+import android.widget.ProgressBar; // Import ProgressBar
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +27,10 @@ public class ProductDetailActivity extends AppCompatActivity {
     private float caloriesPer100g, proteinsPer100g, carbsPer100g, fatsPer100g, saturatedFatPer100g, sugarsPer100g;
     private String productName;
 
+    // Declare ProgressBar and optionally the content layout
+    private ProgressBar loadingSpinner;
+    private LinearLayout contentLayout; // Optional: if you want to hide content
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,19 +40,24 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_product_detail);
 
+        // Find views
         TextView nameView = findViewById(R.id.product_name);
         TextView caloriesView = findViewById(R.id.calories);
         TextView macrosView = findViewById(R.id.macros);
         ImageView imageView = findViewById(R.id.product_image);
         EditText quantityInput = findViewById(R.id.quantity_input);
         Button logButton = findViewById(R.id.log_button);
+        loadingSpinner = findViewById(R.id.loading_spinner); // Get reference to ProgressBar
+        contentLayout = findViewById(R.id.content_layout); // Optional: Get reference to content layout
 
         String barcode = getIntent().getStringExtra("barcode");
         if (barcode != null) {
             fetchProductInfo(barcode, nameView, caloriesView, macrosView, imageView);
         } else {
+            // Handle data passed via extras (no loading needed here usually)
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
+                // ... (your existing code to handle extras)
                 productName = extras.getString("product_name", "Unknown Product");
                 caloriesPer100g = extras.getFloat("calories", 0);
                 proteinsPer100g = extras.getFloat("proteins", 0);
@@ -62,10 +73,19 @@ public class ProductDetailActivity extends AppCompatActivity {
                 if (imageUrl != null && !imageUrl.isEmpty()) {
                     Picasso.get().load(imageUrl).into(imageView);
                 }
+                // Ensure spinner is hidden if data comes from extras
+                loadingSpinner.setVisibility(View.GONE);
+                contentLayout.setVisibility(View.VISIBLE); // Ensure content is visible
+            } else {
+                // Handle case where neither barcode nor extras are present
+                Toast.makeText(this, "No product data found", Toast.LENGTH_LONG).show();
+                finish(); // Close activity if no data
             }
         }
 
+        // Log button listener (remains the same)
         logButton.setOnClickListener(v -> {
+            // ... (your existing log button code)
             String qtyStr = quantityInput.getText().toString();
             if (!qtyStr.isEmpty()) {
                 try {
@@ -85,6 +105,11 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private void fetchProductInfo(String barcode, TextView nameView, TextView caloriesView, TextView macrosView, ImageView imageView) {
+        // Show spinner and hide content BEFORE starting the network request
+        loadingSpinner.setVisibility(View.VISIBLE);
+        // Optional: Hide main content while loading
+        // contentLayout.setVisibility(View.GONE);
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://world.openfoodfacts.org/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -95,7 +120,13 @@ public class ProductDetailActivity extends AppCompatActivity {
         call.enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                // Hide spinner and show content AFTER the request finishes
+                loadingSpinner.setVisibility(View.GONE);
+                // Optional: Show main content again
+                // contentLayout.setVisibility(View.VISIBLE);
+
                 if (response.isSuccessful() && response.body() != null && response.body().getProduct() != null) {
+                    // ... (your existing code to process the successful response)
                     ProductResponse.Product product = response.body().getProduct();
                     productName = product.getProductName() != null ? product.getProductName() : "Unknown Product";
                     caloriesPer100g = product.getNutriments() != null ? product.getNutriments().getCalories() : 0f;
@@ -112,20 +143,35 @@ public class ProductDetailActivity extends AppCompatActivity {
                     String imageUrl = product.getImageUrl();
                     if (imageUrl != null && !imageUrl.isEmpty()) {
                         Picasso.get().load(imageUrl).into(imageView);
+                    } else {
+                        // Maybe set a placeholder if no image URL is found
+                        imageView.setImageResource(R.drawable.image_placeholder); // Use your placeholder drawable
                     }
+
                 } else {
-                    Toast.makeText(ProductDetailActivity.this, "Product not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProductDetailActivity.this, "Product not found or error in response", Toast.LENGTH_SHORT).show();
+                    // Consider finishing the activity or showing an error state
+                    // finish();
                 }
             }
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
-                Toast.makeText(ProductDetailActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                // Hide spinner and show content AFTER the request finishes (even on failure)
+                loadingSpinner.setVisibility(View.GONE);
+                // Optional: Show main content again (maybe show an error message within it)
+                // contentLayout.setVisibility(View.VISIBLE);
+
+                Toast.makeText(ProductDetailActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                // Consider finishing the activity or showing an error state
+                // finish();
             }
         });
     }
 
+    // logConsumption method remains the same
     private void logConsumption(float quantity) {
+        // ... (your existing logConsumption code)
         float factor = quantity / 100f;
         FoodLog log = new FoodLog(
                 productName,
@@ -157,7 +203,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(ProductDetailActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProductDetailActivity.this, "Log Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

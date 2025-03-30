@@ -18,8 +18,8 @@ public interface ApiService {
     @POST("/login")
     Call<LoginResponse> loginUser(@Body User user);
 
-    @GET("/test-auth")
-    Call<Void> testAuthentication();
+    @GET("/get-user-data")
+    Call<User> getUserData();
 
     @POST("/log-food")
     Call<Void> logFood(@Body FoodLog log);
