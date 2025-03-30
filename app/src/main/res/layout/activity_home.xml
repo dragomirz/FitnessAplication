@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/gradient" android:padding="16dp">
+    android:background="@drawable/gradient"
+    android:padding="16dp">
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
@@ -89,7 +90,7 @@
         android:layout_marginBottom="16dp"
         android:baselineAligned="false"
         android:gravity="bottom"
-        android:visibility="gone" > {/* Initially hidden */}
+        android:visibility="gone" >
     </LinearLayout>
 
 
@@ -241,6 +242,39 @@
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/history_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logged Foods"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/textPrimary"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/food_history_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_food_history"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/empty_history_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No foods logged for this day."
+        android:gravity="center"
+        android:textColor="@color/textSecondary"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
 
     <View
         android:layout_width="match_parent"

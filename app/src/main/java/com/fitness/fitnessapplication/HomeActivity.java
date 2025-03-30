@@ -1,22 +1,22 @@
-package com.fitness.fitnessapplication;
+package com.fitness.fitnessapplication; // Use your actual package name
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources; // Added
-import android.graphics.drawable.ColorDrawable; // Added
+import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.TypedValue; // Added
-import android.view.LayoutInflater; // Added
-import android.view.View; // Added
-import android.view.ViewGroup; // Added
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.FrameLayout; // Added
-import android.widget.LinearLayout; // Added
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,24 +24,37 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager; // Added
+import androidx.recyclerview.widget.RecyclerView; // Added
 
-// Updated import for the modified response structure
+// Data Models (ensure correct package)
 import com.fitness.fitnessapplication.DataModels.DailyLogResponse;
+import com.fitness.fitnessapplication.DataModels.FoodLog; // Added
 import com.fitness.fitnessapplication.DataModels.User;
+
+// Retrofit (ensure correct package)
 import com.fitness.fitnessapplication.RetroFit.ApiClient;
 import com.fitness.fitnessapplication.RetroFit.ApiService;
+
+// Adapter (ensure correct package)
+import com.fitness.fitnessapplication.Adapters.FoodHistoryAdapter; // Added
+
+// Other components
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
-import java.text.ParseException; // Added
-import java.text.SimpleDateFormat; // Added
-import java.util.ArrayList; // Added
-import java.util.Date; // Added
-import java.util.List; // Added
-import java.util.Locale; // Added
+// Java utils
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections; // Added
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
+// Retrofit
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -61,18 +74,24 @@ public class HomeActivity extends AppCompatActivity {
     private LinearProgressIndicator carbsProgress;
     private LinearProgressIndicator fatsProgress;
     private LinearProgressIndicator sugarProgress;
-    private Button btnHome, btnScanner, btnUserInfo; // Assuming IDs are btn_home, btn_scanner, btn_user_info
+    private Button btnHome, btnScanner, btnUserInfo;
 
     // New/Modified Views
-    private FrameLayout dailyMonthlyCalorieView; // Container for circular progress
-    private LinearLayout weeklyBarContainer;     // Container for weekly bars
-    private TextView nutritionSummaryTitle;     // Title text view inside the card
+    private FrameLayout dailyMonthlyCalorieView;
+    private LinearLayout weeklyBarContainer;
+    private TextView nutritionSummaryTitle;
+
+    // History Section Views
+    private RecyclerView foodHistoryRecyclerView;
+    private FoodHistoryAdapter foodHistoryAdapter;
+    private TextView historyTitleTextView;
+    private TextView emptyHistoryTextView;
 
     // Other Variables
     private String[] periods = {"Daily", "Weekly", "Monthly"};
     private ActivityResultLauncher<ScanOptions> barcodeLauncher;
-    private List<DailyLogResponse.DailyData> weeklyDataCache; // Cache for weekly data
-    private View currentlySelectedBarView = null; // To track the selected bar view
+    private List<DailyLogResponse.DailyData> weeklyDataCache;
+    private View currentlySelectedBarView = null;
 
     // Nutrition goals
     private int DAILY_CALORIE_GOAL = 2000;
@@ -92,26 +111,23 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         initializeViews();
+        setupRecyclerView(); // Setup history RecyclerView
         setupPeriodSelector();
         setupBarcodeScanner();
         setupButtonListeners();
 
-        // Fetch user data first to set goals, which then triggers the initial fetchLogs
-        getUserData();
-        // Initial fetchLogs("Daily") will happen inside updateCalorieGoal after getUserData finishes
+        getUserData(); // Fetches user data -> updates goals -> fetches logs & potentially history
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh data when returning - use the current selection
         String currentPeriod = periodDropdown.getText().toString();
         if (!currentPeriod.isEmpty()) {
-            // Re-fetch user data in case goals changed elsewhere, then fetch logs
-            getUserData();
+            getUserData(); // Re-fetch goals and then data
         } else {
-            periodDropdown.setText(periods[0], false); // Set default if empty
-            getUserData(); // Fetch goals then logs
+            periodDropdown.setText(periods[0], false);
+            getUserData();
         }
     }
 
@@ -133,27 +149,36 @@ public class HomeActivity extends AppCompatActivity {
         btnScanner = findViewById(R.id.btn_scanner);
         btnUserInfo = findViewById(R.id.btn_user_info);
 
-
         // New/Modified Views
         dailyMonthlyCalorieView = findViewById(R.id.daily_monthly_calorie_view);
         weeklyBarContainer = findViewById(R.id.weekly_bar_container);
         nutritionSummaryTitle = findViewById(R.id.nutrition_summary_title);
 
-        // Initial UI Goal Setup (will be updated by getUserData)
+        // Initialize History Views
+        historyTitleTextView = findViewById(R.id.history_title);
+        foodHistoryRecyclerView = findViewById(R.id.food_history_recycler_view);
+        emptyHistoryTextView = findViewById(R.id.empty_history_text);
+
+        // Initial UI Goal Setup
         updateUiForGoals(DAILY_CALORIE_GOAL, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
+    }
+
+    // Setup History RecyclerView
+    private void setupRecyclerView() {
+        foodHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        foodHistoryAdapter = new FoodHistoryAdapter(); // Create adapter instance
+        foodHistoryRecyclerView.setAdapter(foodHistoryAdapter);
     }
 
     private void setupPeriodSelector() {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, periods);
         periodDropdown.setAdapter(adapter);
-        // Set initial text, but fetchLogs will be driven by getUserData->updateCalorieGoal
-        periodDropdown.setText(periods[0], false);
+        periodDropdown.setText(periods[0], false); // Set initial value
 
         periodDropdown.setOnItemClickListener((parent, view, position, id) -> {
-            // Clear previous selection highlight when period changes
-            highlightBar(null);
-            fetchLogs(periods[position]);
+            highlightBar(null); // Clear weekly selection
+            fetchLogs(periods[position]); // Fetch data for newly selected period
         });
     }
 
@@ -163,10 +188,15 @@ public class HomeActivity extends AppCompatActivity {
                 Toast.makeText(this, "Scan cancelled", Toast.LENGTH_SHORT).show();
             } else {
                 String barcode = result.getContents();
-                // Assuming ProductDetailActivity exists and handles the barcode
-                Intent intent = new Intent(HomeActivity.this, ProductDetailActivity.class);
-                intent.putExtra("barcode", barcode);
-                startActivity(intent);
+                // Ensure ProductDetailActivity exists and can handle the intent
+                try {
+                    Intent intent = new Intent(HomeActivity.this, ProductDetailActivity.class);
+                    intent.putExtra("barcode", barcode);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Could not open product details.", Toast.LENGTH_SHORT).show();
+                    System.err.println("Error launching ProductDetailActivity: " + e.getMessage());
+                }
             }
         });
     }
@@ -175,14 +205,20 @@ public class HomeActivity extends AppCompatActivity {
         btnHome.setOnClickListener(v -> refreshData());
         btnScanner.setOnClickListener(v -> scanBarcode());
         btnUserInfo.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, UserInfoActivity.class);
-            startActivity(intent);
+            try {
+                Intent intent = new Intent(HomeActivity.this, UserInfoActivity.class);
+                startActivity(intent);
+            } catch (Exception e) {
+                Toast.makeText(this, "Could not open user info.", Toast.LENGTH_SHORT).show();
+                System.err.println("Error launching UserInfoActivity: " + e.getMessage());
+            }
         });
     }
 
     private void refreshData() {
         String period = periodDropdown.getText().toString();
-        fetchLogs(period);
+        // Re-fetch user data to ensure goals are up-to-date, then fetch logs
+        getUserData();
         Toast.makeText(this, "Refreshing " + period + " data", Toast.LENGTH_SHORT).show();
     }
 
@@ -191,12 +227,12 @@ public class HomeActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
         } else {
             ScanOptions options = new ScanOptions();
-            options.setOrientationLocked(false); // Prefer false for easier scanning
-            options.setDesiredBarcodeFormats(ScanOptions.PRODUCT_CODE_TYPES); // Be more specific
+            options.setOrientationLocked(false);
+            options.setDesiredBarcodeFormats(ScanOptions.PRODUCT_CODE_TYPES);
             options.setPrompt("Scan a product barcode");
-            options.setCameraId(0); // Use default camera
-            options.setBeepEnabled(true); // Enable beep on scan
-            options.setBarcodeImageEnabled(false); // No need for image usually
+            options.setCameraId(0);
+            options.setBeepEnabled(true);
+            options.setBarcodeImageEnabled(false);
             barcodeLauncher.launch(options);
         }
     }
@@ -216,19 +252,17 @@ public class HomeActivity extends AppCompatActivity {
     private void getUserData() {
         ApiService apiService = ApiClient.getApiService(this);
         if (apiService == null) {
-            Toast.makeText(HomeActivity.this, "Error initializing API service.", Toast.LENGTH_SHORT).show();
-            // Handle error appropriately, maybe redirect to login or show retry option
-            handleAuthFailure(); // Or a more specific error handling
+            Toast.makeText(HomeActivity.this, "API Service Error.", Toast.LENGTH_SHORT).show();
+            loadGoalsFromPrefsAndFetchLogs(); // Attempt fallback
             return;
         }
 
         Call<User> userDataCall = apiService.getUserData();
-        userDataCall.enqueue(new Callback<User>() { // Use User directly if User class has all fields
+        userDataCall.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     User userData = response.body();
-                    // Save user data to SharedPreferences
                     SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("name", userData.getName());
@@ -236,107 +270,112 @@ public class HomeActivity extends AppCompatActivity {
                     editor.putString("weight", userData.getWeight());
                     editor.putString("height", userData.getHeight());
                     editor.putString("gender", userData.getGender());
-                    // Make sure getCalories() exists in User model and returns float or double
-                    editor.putFloat("calorie_goal", (float) userData.getCalories());
+                    // Ensure getCalories() exists and returns a number
+                    try {
+                        editor.putFloat("calorie_goal", (float) userData.getCalories());
+                    } catch (Exception e) {
+                        editor.putFloat("calorie_goal", 2000f); // Default if parsing fails
+                        System.err.println("Error reading calorie goal from user data: " + e.getMessage());
+                    }
                     editor.apply();
-
-                    // Update UI with user's calorie goal, which triggers fetchLogs
                     updateCalorieGoal(userData.getCalories());
-                } else if (response.code() == 401 || response.code() == 403){
-                    handleAuthFailure(); // Handle auth failure specifically
+                } else if (response.code() == 401 || response.code() == 403) {
+                    handleAuthFailure();
                 } else {
-                    Toast.makeText(HomeActivity.this, "Failed to get user data: " + response.message(), Toast.LENGTH_LONG).show();
-                    // Attempt to load from SharedPreferences as fallback?
-                    loadGoalsFromPrefsAndFetchLogs();
+                    Toast.makeText(HomeActivity.this, "Failed to get user data: " + response.code(), Toast.LENGTH_LONG).show();
+                    loadGoalsFromPrefsAndFetchLogs(); // Attempt fallback
                 }
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                Toast.makeText(HomeActivity.this, "Network error getting user data: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                System.err.println("Network error getting user data: " + t.getMessage());
-                // Attempt to load from SharedPreferences as fallback
-                loadGoalsFromPrefsAndFetchLogs();
+                Toast.makeText(HomeActivity.this, "Network error getting user data.", Toast.LENGTH_SHORT).show();
+                System.err.println("Network error getUserData: " + t.getMessage());
+                loadGoalsFromPrefsAndFetchLogs(); // Attempt fallback
             }
         });
     }
 
-    // Fallback loading mechanism
     private void loadGoalsFromPrefsAndFetchLogs() {
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        float savedGoal = sharedPreferences.getFloat("calorie_goal", 2000f); // Default to 2000 if not found
+        float savedGoal = sharedPreferences.getFloat("calorie_goal", 2000f);
         updateCalorieGoal(savedGoal);
     }
 
-    // Method to update the calorie goal variables and UI elements
     private void updateCalorieGoal(double calorieGoal) {
-        DAILY_CALORIE_GOAL = (int) Math.round(calorieGoal); // Use round
+        DAILY_CALORIE_GOAL = (int) Math.round(calorieGoal);
         WEEKLY_CALORIE_GOAL = DAILY_CALORIE_GOAL * 7;
-        // Monthly is approximate, consider using average days in month if needed later
         MONTHLY_CALORIE_GOAL = DAILY_CALORIE_GOAL * 30;
 
-        // Fetch logs based on the *currently selected* period in the dropdown
         String currentPeriod = periodDropdown.getText().toString();
-        if (currentPeriod.isEmpty()) { // If dropdown is empty somehow, default to Daily
+        if (currentPeriod.isEmpty()) {
             currentPeriod = periods[0];
             periodDropdown.setText(currentPeriod, false);
         }
-        fetchLogs(currentPeriod); // Trigger log fetching AFTER goals are updated
+        fetchLogs(currentPeriod); // Fetch logs *after* goals are set
     }
 
-    // Central method to fetch data based on selected period
     private void fetchLogs(String period) {
         ApiService apiService = ApiClient.getApiService(this);
         if (apiService == null) {
             showError("API Service Error");
             return;
         }
-        // Use current date for fetching
-        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        String currentDateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
         Call<DailyLogResponse> call;
 
-        // Goals for the summary card (initially set based on period, adjusted for weekly later)
-        int summaryCalorieGoal = DAILY_CALORIE_GOAL; // Default to daily
+        int summaryCalorieGoal = DAILY_CALORIE_GOAL;
         int summaryProteinGoal = PROTEIN_GOAL_DAILY;
         int summaryCarbsGoal = CARBS_GOAL_DAILY;
         int summaryFatsGoal = FATS_GOAL_DAILY;
         int summarySugarGoal = SUGAR_GOAL_DAILY;
 
-        // Adjust visibility and goals based on period
+        String dateForHistory = currentDateStr; // Today's date by default
+        boolean showHistory = false; // Flag to control history section visibility
+
+        // Configure UI based on period
         if ("Weekly".equals(period)) {
             dailyMonthlyCalorieView.setVisibility(View.GONE);
             weeklyBarContainer.setVisibility(View.VISIBLE);
             nutritionSummaryTitle.setText("Nutrition Summary (Select a Day)");
-            // Goals for summary card remain daily when viewing weekly details
+            showHistory = false; // History shown on bar click
         } else {
             dailyMonthlyCalorieView.setVisibility(View.VISIBLE);
             weeklyBarContainer.setVisibility(View.GONE);
             nutritionSummaryTitle.setText("Nutrition Summary");
-            // Set aggregate goals for Daily/Monthly views
+
             if ("Monthly".equals(period)) {
                 summaryCalorieGoal = MONTHLY_CALORIE_GOAL;
-                summaryProteinGoal *= 30; // Approximate monthly goal
+                summaryProteinGoal *= 30;
                 summaryCarbsGoal *= 30;
                 summaryFatsGoal *= 30;
                 summarySugarGoal *= 30;
+                showHistory = false; // No history for monthly
             } else { // Daily
                 summaryCalorieGoal = DAILY_CALORIE_GOAL;
-                // Daily goals are already set
+                showHistory = true; // Show history for daily
             }
-            // Update the circular progress goal text and max value for Daily/Monthly
             updateUiForGoals(summaryCalorieGoal, summaryProteinGoal, summaryCarbsGoal, summaryFatsGoal, summarySugarGoal);
         }
 
-        // Make the API call
-        // Pass lowercase range "daily", "weekly", "monthly" or null for default (daily)
-        String rangeParam = period.equalsIgnoreCase("Daily") ? null : period.toLowerCase(Locale.US);
-        call = apiService.getDailyLogs(date, rangeParam);
+        // Set history visibility *before* making the call
+        setHistoryVisibility(showHistory);
+        if (showHistory) {
+            fetchFoodHistoryForDate(dateForHistory); // Fetch history if needed (i.e., for Daily view)
+        }
 
+
+        // Prepare and make the API call for aggregate/weekly data
+        String rangeParam = period.equalsIgnoreCase("Daily") ? null : period.toLowerCase(Locale.US);
+        call = apiService.getDailyLogs(currentDateStr, rangeParam); // Always use today's date for this call context
+
+        // Store final goals for use inside callback
         int finalSummaryCalorieGoal = summaryCalorieGoal;
         int finalSummaryProteinGoal = summaryProteinGoal;
         int finalSummaryCarbsGoal = summaryCarbsGoal;
         int finalSummaryFatsGoal = summaryFatsGoal;
         int finalSummarySugarGoal = summarySugarGoal;
+
         call.enqueue(new Callback<DailyLogResponse>() {
             @Override
             public void onResponse(Call<DailyLogResponse> call, Response<DailyLogResponse> response) {
@@ -346,68 +385,55 @@ public class HomeActivity extends AppCompatActivity {
                         if (data.getDailyData() != null && !data.getDailyData().isEmpty()) {
                             weeklyDataCache = data.getDailyData();
                             populateWeeklyBars(weeklyDataCache);
-                            // Show last day's summary initially and highlight bar
+                            // Show last day's summary & fetch its history initially
                             if (!weeklyDataCache.isEmpty()) {
-                                // Pass daily goals for the initial summary view
-                                updateNutritionSummaryForDay(weeklyDataCache.get(weeklyDataCache.size() - 1),
-                                        PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
+                                DailyLogResponse.DailyData lastDay = weeklyDataCache.get(weeklyDataCache.size() - 1);
+                                updateNutritionSummaryForDay(lastDay, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
                                 if (weeklyBarContainer.getChildCount() > 0) {
-                                    highlightBar(weeklyBarContainer.getChildAt(weeklyBarContainer.getChildCount() - 1).findViewById(R.id.bar_view));
+                                    View lastBar = weeklyBarContainer.getChildAt(weeklyBarContainer.getChildCount() - 1);
+                                    if(lastBar != null) highlightBar(lastBar.findViewById(R.id.bar_view));
+                                }
+                                // Fetch history for the initially displayed day
+                                if (lastDay != null && lastDay.getDate() != null) {
+                                    setHistoryVisibility(true); // Show history section now
+                                    fetchFoodHistoryForDate(lastDay.getDate());
+                                } else {
+                                    setHistoryVisibility(false); // Hide if date is bad
                                 }
                             } else {
-                                // Handle case where dailyData exists but is empty
-                                showError("No log data found for this week.");
-                                updateNutritionSummaryForDay(null, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY); // Clear summary
+                                setHistoryVisibility(false); // Hide if no data
                             }
                         } else {
                             weeklyDataCache = new ArrayList<>();
                             weeklyBarContainer.removeAllViews();
                             showError("No weekly data available.");
-                            updateNutritionSummaryForDay(null, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY); // Clear summary
+                            updateNutritionSummaryForDay(null, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
+                            setHistoryVisibility(false); // Hide history section
                         }
                     } else { // Daily or Monthly Aggregate View
                         if (data.getTotals() != null) {
-                            // Pass the calculated aggregate goals for this period
                             updateAggregateNutritionData(data.getTotals(), finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
+                            // History fetch for Daily was already triggered before the call
                         } else {
                             showError("No totals data available for " + period);
-                            // Clear aggregate view and summary
                             updateAggregateNutritionData(null, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
                         }
                     }
                 } else if (response.code() == 401 || response.code() == 403) {
                     handleAuthFailure();
                 } else {
-                    // Handle other non-successful responses (e.g., 404, 500)
                     String errorMsg = "Error fetching data (" + response.code() + ")";
-                    try { // Try to get error body
-                        if (response.errorBody() != null) errorMsg += ": " + response.errorBody().string();
-                    } catch (Exception e) { /* Ignore */ }
+                    try { if (response.errorBody() != null) errorMsg += ": " + response.errorBody().string(); } catch (Exception e) { /* Ignore */ }
                     showError(errorMsg);
-                    // Clear relevant views based on period
-                    if ("Weekly".equals(period)) {
-                        weeklyDataCache = new ArrayList<>();
-                        weeklyBarContainer.removeAllViews();
-                        updateNutritionSummaryForDay(null, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
-                    } else {
-                        updateAggregateNutritionData(null, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
-                    }
+                    clearViewsOnError(period, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
                 }
             }
 
             @Override
             public void onFailure(Call<DailyLogResponse> call, Throwable t) {
                 showError("Network error: " + t.getMessage());
-                System.err.println("Network Error fetching logs: " + t.toString());
-                // Clear relevant views based on period
-                if ("Weekly".equals(period)) {
-                    weeklyDataCache = new ArrayList<>();
-                    weeklyBarContainer.removeAllViews();
-                    updateNutritionSummaryForDay(null, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
-                } else {
-                    // Clear aggregate view and summary
-                    updateAggregateNutritionData(null, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
-                }
+                System.err.println("Network Error fetchLogs: " + t.toString());
+                clearViewsOnError(period, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
             }
         });
     }
@@ -415,25 +441,20 @@ public class HomeActivity extends AppCompatActivity {
     // Updates Aggregate View (Daily/Monthly Circular Progress)
     private void updateAggregateNutritionData(DailyLogResponse.Totals totals, int calorieGoal, int proteinGoal,
                                               int carbsGoal, int fatsGoal, int sugarGoal) {
-
         if (totals != null) {
             int calories = Math.round(totals.getCalories());
             caloriesValue.setText(String.valueOf(calories));
             animateProgress(caloriesProgress, calories);
-            // Update the nutrition summary card using the aggregate totals and goals
             updateNutritionSummary(totals, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
         } else {
-            // Clear the view if totals are null
             caloriesValue.setText("0");
             animateProgress(caloriesProgress, 0);
-            // Clear the summary card as well
             updateNutritionSummary(null, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
         }
     }
 
     // Reusable method to update ONLY the Nutrition Summary Card's linear bars and text
     private void updateNutritionSummary(DailyLogResponse.Totals totals, int proteinGoal, int carbsGoal, int fatsGoal, int sugarGoal) {
-        // Ensure goals are positive for setting max progress
         proteinProgress.setMax(Math.max(1, proteinGoal));
         carbsProgress.setMax(Math.max(1, carbsGoal));
         fatsProgress.setMax(Math.max(1, fatsGoal));
@@ -452,14 +473,10 @@ public class HomeActivity extends AppCompatActivity {
             fatsValue.setText(fats + "g");
             animateProgress(fatsProgress, fats);
 
-            // Use getSaturatedFat() if that's the correct getter based on DailyLogResponse
-            // float saturated = totals.getSaturatedFat();
-
             int sugars = Math.round(totals.getSugars());
             sugarValue.setText(sugars + "g");
             animateProgress(sugarProgress, sugars);
         } else {
-            // Clear values if totals are null
             proteinValue.setText("0g");
             carbsValue.setText("0g");
             fatsValue.setText("0g");
@@ -472,212 +489,241 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // --- Weekly Bar Population and Interaction ---
-
     private void populateWeeklyBars(List<DailyLogResponse.DailyData> dailyDataList) {
-        weeklyBarContainer.removeAllViews(); // Clear previous bars
-        currentlySelectedBarView = null; // Reset selection
-
-        if (dailyDataList == null || dailyDataList.isEmpty()) {
-            // Optionally show a message here if needed
-            return;
-        }
+        weeklyBarContainer.removeAllViews();
+        currentlySelectedBarView = null;
+        if (dailyDataList == null || dailyDataList.isEmpty()) return;
 
         LayoutInflater inflater = LayoutInflater.from(this);
         SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        SimpleDateFormat outputFormat = new SimpleDateFormat("EEE", Locale.US); // For day initial
+        SimpleDateFormat outputFormat = new SimpleDateFormat("EEE", Locale.US);
 
-        // 1. Find max calorie value for scaling
         double maxCalories = 0;
         for (DailyLogResponse.DailyData dayData : dailyDataList) {
             if (dayData != null && dayData.getTotals() != null && dayData.getTotals().getCalories() > maxCalories) {
                 maxCalories = dayData.getTotals().getCalories();
             }
         }
-        // Use daily goal or a default if max is 0, prevents division by zero
-        if (maxCalories <= 0) {
-            maxCalories = Math.max(1.0, DAILY_CALORIE_GOAL); // Ensure max is at least 1
-        }
+        if (maxCalories <= 0) maxCalories = Math.max(1.0, DAILY_CALORIE_GOAL);
 
-        // 2. Define max bar height in dp and convert to pixels
-        int maxBarHeightDp = 140; // Adjust as needed (should be less than container height)
+        int maxBarHeightDp = 140;
         int maxBarHeightPx = dpToPx(maxBarHeightDp);
-        int minBarHeightPx = dpToPx(2); // Min height for bars with >0 calories
+        int minBarHeightPx = dpToPx(2);
 
-
-        // 3. Inflate and configure bars
         for (int i = 0; i < dailyDataList.size(); i++) {
             final DailyLogResponse.DailyData dayData = dailyDataList.get(i);
-            if (dayData == null) continue; // Skip if data for a day is somehow null
+            if (dayData == null) continue;
 
             View barItemView = inflater.inflate(R.layout.item_weekly_bar, weeklyBarContainer, false);
-
             View barView = barItemView.findViewById(R.id.bar_view);
             TextView dayLabel = barItemView.findViewById(R.id.day_label_text);
             TextView calorieLabel = barItemView.findViewById(R.id.calorie_text);
 
-            // Set Day Label
             try {
                 if (dayData.getDate() != null) {
                     Date date = inputFormat.parse(dayData.getDate());
-                    dayLabel.setText(outputFormat.format(date).substring(0, 1)); // Get first letter
-                } else {
-                    dayLabel.setText("?");
-                }
-            } catch (ParseException | NullPointerException | IndexOutOfBoundsException e) {
-                dayLabel.setText("?");
-                System.err.println("Error parsing date for label: " + dayData.getDate() + " | " + e.getMessage());
-            }
+                    dayLabel.setText(outputFormat.format(date).substring(0, 1));
+                } else { dayLabel.setText("?"); }
+            } catch (Exception e) { dayLabel.setText("?"); System.err.println("Error parsing date for label: " + e.getMessage()); }
 
-            // Calculate and Set Bar Height
             double currentCalories = (dayData.getTotals() != null) ? dayData.getTotals().getCalories() : 0;
-            int barHeight;
-            if (currentCalories > 0) {
-                barHeight = (int) ((currentCalories / maxCalories) * maxBarHeightPx);
-                barHeight = Math.max(minBarHeightPx, barHeight); // Ensure minimum visible height
-                calorieLabel.setText(String.valueOf(Math.round(currentCalories)));
-                calorieLabel.setVisibility(View.VISIBLE);
-            } else {
-                barHeight = 0; // No height for zero calories
-                calorieLabel.setVisibility(View.INVISIBLE);
-            }
+            int barHeight = (currentCalories > 0) ? Math.max(minBarHeightPx, (int) ((currentCalories / maxCalories) * maxBarHeightPx)) : 0;
+            ViewGroup.LayoutParams params = barView.getLayoutParams(); params.height = barHeight; barView.setLayoutParams(params);
+            if (currentCalories > 0) { calorieLabel.setText(String.valueOf(Math.round(currentCalories))); calorieLabel.setVisibility(View.VISIBLE); } else { calorieLabel.setVisibility(View.INVISIBLE); }
 
-            ViewGroup.LayoutParams params = barView.getLayoutParams();
-            params.height = barHeight;
-            barView.setLayoutParams(params);
-
-            // Set Click Listener for the whole column
-            final int index = i; // Need final index for listener
+            final int index = i;
             barItemView.setOnClickListener(v -> {
                 if (weeklyDataCache != null && index < weeklyDataCache.size()) {
-                    // Pass daily goals when updating summary from a selected day
-                    updateNutritionSummaryForDay(weeklyDataCache.get(index),
-                            PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
-                    highlightBar(barView); // Highlight the clicked bar's view
+                    DailyLogResponse.DailyData selectedDay = weeklyDataCache.get(index);
+                    if (selectedDay != null && selectedDay.getDate() != null) {
+                        updateNutritionSummaryForDay(selectedDay, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
+                        highlightBar(barView);
+                        setHistoryVisibility(true); // Show history section
+                        fetchFoodHistoryForDate(selectedDay.getDate()); // Fetch history for clicked day
+                    }
                 }
             });
-
-            // Add the configured item to the container
             weeklyBarContainer.addView(barItemView);
         }
-        // Ensure layout updates after adding views
         weeklyBarContainer.requestLayout();
     }
 
     // Updates the Nutrition Summary Card based on selected day's data
     private void updateNutritionSummaryForDay(DailyLogResponse.DailyData dayData, int proteinGoal, int carbsGoal, int fatsGoal, int sugarGoal) {
         if (dayData != null && dayData.getDate() != null) {
-            // Update the title
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-            SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM d", Locale.US); // e.g., Mon, Mar 24
+            SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM d", Locale.US);
             try {
                 Date date = inputFormat.parse(dayData.getDate());
                 nutritionSummaryTitle.setText("Nutrition Summary (" + outputFormat.format(date) + ")");
-            } catch (ParseException | NullPointerException e) {
+            } catch (Exception e) {
                 nutritionSummaryTitle.setText("Nutrition Summary (Selected Day)");
-                System.err.println("Error parsing date for title: " + dayData.getDate());
             }
-            // Update the summary card using the selected day's totals and the provided (daily) goals
             updateNutritionSummary(dayData.getTotals(), proteinGoal, carbsGoal, fatsGoal, sugarGoal);
         } else {
-            // Clear the summary if data is null
             nutritionSummaryTitle.setText("Nutrition Summary");
-            updateNutritionSummary(null, proteinGoal, carbsGoal, fatsGoal, sugarGoal); // Pass null totals
+            updateNutritionSummary(null, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
         }
     }
 
-
-    // Helper to highlight the selected bar and unhighlight the previous one
+    // Helper to highlight the selected bar
     private void highlightBar(View selectedBar) {
-        // Reset previous selection (using default colorPrimary)
-        if (currentlySelectedBarView != null && currentlySelectedBarView.getBackground() instanceof ColorDrawable) {
+        if (currentlySelectedBarView != null) {
             currentlySelectedBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
-        } else if (currentlySelectedBarView != null) {
-            // If background wasn't a simple color, you might need a different way to store/reset
-            currentlySelectedBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary)); // Attempt reset
         }
-
-
-        // Apply selection highlight
         if (selectedBar != null) {
-            int selectedColor = ContextCompat.getColor(this, R.color.colorSecondary); // Make sure you have this color
-            // Basic fallback if colorSecondary isn't defined (consider a better fallback)
-            if (selectedColor == 0) selectedColor = ContextCompat.getColor(this, android.R.color.holo_blue_light);
-
+            int selectedColor = ContextCompat.getColor(this, R.color.colorSecondary);
+            if (selectedColor == 0) selectedColor = ContextCompat.getColor(this, android.R.color.holo_blue_light); // Fallback
             selectedBar.setBackgroundColor(selectedColor);
             currentlySelectedBarView = selectedBar;
         } else {
-            currentlySelectedBarView = null; // No bar selected
+            currentlySelectedBarView = null;
         }
     }
 
+    // --- History Fetching and Display ---
+    private void fetchFoodHistoryForDate(String dateString) {
+        if (dateString == null || dateString.isEmpty()) {
+            updateHistoryList(Collections.emptyList(), "Error: Invalid date");
+            return;
+        }
 
-    // Helper method to convert dp to pixels
-    private int dpToPx(int dp) {
-        return (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                dp,
-                getResources().getDisplayMetrics()
-        );
+        ApiService apiService = ApiClient.getApiService(this);
+        if (apiService == null) {
+            updateHistoryList(Collections.emptyList(), "Error: API Service unavailable");
+            return;
+        }
+
+        // Optional: Show loading indicator for history
+        emptyHistoryTextView.setText("Loading history...");
+        emptyHistoryTextView.setVisibility(View.VISIBLE);
+        foodHistoryRecyclerView.setVisibility(View.GONE);
+
+
+        Call<List<FoodLog>> historyCall = apiService.getLogsForDate(dateString);
+        historyCall.enqueue(new Callback<List<FoodLog>>() {
+            @Override
+            public void onResponse(Call<List<FoodLog>> call, Response<List<FoodLog>> response) {
+                if (response.isSuccessful()) {
+                    List<FoodLog> logs = response.body();
+                    String title = "Logged Foods";
+                    try {
+                        SimpleDateFormat inputFmt = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                        SimpleDateFormat titleFmt = new SimpleDateFormat("EEE, MMM d", Locale.US);
+                        Date parsedDate = inputFmt.parse(dateString);
+                        title = "Logged Foods (" + titleFmt.format(parsedDate) + ")";
+                        String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+                        if (dateString.equals(todayStr)) {
+                            title = "Logged Foods Today";
+                        }
+                    } catch (Exception e) { /* Keep default title */ }
+                    updateHistoryList(logs, title);
+                } else {
+                    updateHistoryList(Collections.emptyList(), "Error loading history (" + response.code() + ")");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<FoodLog>> call, Throwable t) {
+                System.err.println("Network error fetching history: " + t.getMessage());
+                updateHistoryList(Collections.emptyList(), "Network Error");
+            }
+        });
     }
 
-    // Helper to set max values and text for goals (used for Daily/Monthly circular view)
+    private void updateHistoryList(List<FoodLog> logs, String title) {
+        historyTitleTextView.setText(title);
+        if (logs != null && !logs.isEmpty()) {
+            foodHistoryAdapter.updateData(logs);
+            foodHistoryRecyclerView.setVisibility(View.VISIBLE);
+            emptyHistoryTextView.setVisibility(View.GONE);
+        } else {
+            foodHistoryAdapter.updateData(Collections.emptyList());
+            foodHistoryRecyclerView.setVisibility(View.GONE);
+            emptyHistoryTextView.setVisibility(View.VISIBLE);
+            if (title.toLowerCase().contains("error") || title.equalsIgnoreCase("Network Error")) {
+                emptyHistoryTextView.setText("Could not load history.");
+            } else {
+                emptyHistoryTextView.setText("No foods logged for this day.");
+            }
+        }
+    }
+
+    private void setHistoryVisibility(boolean isVisible) {
+        int visibility = isVisible ? View.VISIBLE : View.GONE;
+        historyTitleTextView.setVisibility(visibility); // Title always matches section visibility
+
+        // RecyclerView and Empty text visibility is handled by updateHistoryList OR when hiding
+        if (!isVisible) {
+            foodHistoryRecyclerView.setVisibility(View.GONE);
+            emptyHistoryTextView.setVisibility(View.GONE);
+            if (foodHistoryAdapter != null) { // Clear adapter data when hiding
+                foodHistoryAdapter.updateData(Collections.emptyList());
+            }
+        } else {
+            // If becoming visible, updateHistoryList will handle showing list or empty text
+        }
+    }
+
+    // --- Utility and Helper Methods ---
+    private int dpToPx(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+    }
+
     private void updateUiForGoals(int calorieGoal, int proteinGoal, int carbsGoal, int fatsGoal, int sugarGoal) {
-        // Set max for circular progress
         caloriesProgress.setMax(Math.max(1, calorieGoal));
         calorieGoalText.setText("of " + calorieGoal + " kcal");
-
-        // Max values for linear bars are set within updateNutritionSummary based on context
+        // Linear bar max values are set in updateNutritionSummary
     }
-
-    // --- Animation Methods ---
 
     private void animateProgress(CircularProgressIndicator indicator, int value) {
         int max = indicator.getMax();
-        int progressValue = Math.max(0, Math.min(value, max)); // Ensure 0 <= value <= max
-        ObjectAnimator.ofInt(indicator, "progress", indicator.getProgress(), progressValue)
-                .setDuration(800) // Adjust duration as needed
-                .start();
+        int progressValue = Math.max(0, Math.min(value, max));
+        ObjectAnimator.ofInt(indicator, "progress", indicator.getProgress(), progressValue).setDuration(800).start();
     }
 
     private void animateProgress(LinearProgressIndicator indicator, int value) {
         int max = indicator.getMax();
-        int progressValue = Math.max(0, Math.min(value, max)); // Ensure 0 <= value <= max
-        ObjectAnimator.ofInt(indicator, "progress", indicator.getProgress(), progressValue)
-                .setDuration(800)
-                .start();
+        int progressValue = Math.max(0, Math.min(value, max));
+        ObjectAnimator.ofInt(indicator, "progress", indicator.getProgress(), progressValue).setDuration(800).start();
     }
-
-    // --- Error Handling and Auth Failure ---
 
     private void handleAuthFailure() {
         Toast.makeText(this, "Session expired. Please log in again.", Toast.LENGTH_LONG).show();
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        sharedPreferences.edit().remove("token").apply(); // Clear token
-        // Optional: Clear other sensitive user data from prefs
+        sharedPreferences.edit().clear().apply(); // Clear all prefs on auth failure
         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear back stack
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        finish(); // Finish HomeActivity
+        finish();
+    }
+
+    private void clearViewsOnError(String period, int calorieGoal, int proteinGoal, int carbsGoal, int fatsGoal, int sugarGoal){
+        if ("Weekly".equals(period)) {
+            weeklyDataCache = new ArrayList<>();
+            weeklyBarContainer.removeAllViews();
+            updateNutritionSummaryForDay(null, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
+            setHistoryVisibility(false); // Hide history on error
+        } else {
+            updateAggregateNutritionData(null, calorieGoal, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
+            if("Daily".equals(period)){
+                setHistoryVisibility(true); // Keep section visible but show error
+                updateHistoryList(Collections.emptyList(), "Error loading data");
+            } else { // Monthly
+                setHistoryVisibility(false);
+            }
+        }
     }
 
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        System.err.println("HomeActivity Error: " + message); // Log error for debugging
-
-        // Determine current period to clear correctly
+        System.err.println("HomeActivity Error: " + message);
         String period = periodDropdown.getText().toString();
-
-        if ("Weekly".equals(period)) {
-            weeklyBarContainer.removeAllViews();
-            updateNutritionSummaryForDay(null, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY); // Clear summary
-        } else {
-            // Clear aggregate view and summary
-            int currentCalorieGoal = period.equals("Monthly") ? MONTHLY_CALORIE_GOAL : DAILY_CALORIE_GOAL;
-            int currentProteinGoal = PROTEIN_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
-            int currentCarbsGoal = CARBS_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
-            int currentFatsGoal = FATS_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
-            int currentSugarGoal = SUGAR_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
-            updateAggregateNutritionData(null, currentCalorieGoal, currentProteinGoal, currentCarbsGoal, currentFatsGoal, currentSugarGoal);
-        }
+        int calorieGoal = period.equals("Monthly") ? MONTHLY_CALORIE_GOAL : DAILY_CALORIE_GOAL;
+        int proteinGoal = PROTEIN_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
+        int carbsGoal = CARBS_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
+        int fatsGoal = FATS_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
+        int sugarGoal = SUGAR_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
+        clearViewsOnError(period, calorieGoal, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
     }
 }
