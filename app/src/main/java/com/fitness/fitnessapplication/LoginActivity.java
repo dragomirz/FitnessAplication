@@ -55,17 +55,18 @@ public class LoginActivity extends AppCompatActivity {
         String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
-        // Reset error states
+        // Нулиране на грешките
         emailInputLayout.setError(null);
         passwordInputLayout.setError(null);
 
+        // Валидация с директно вмъкнати български съобщения
         if (email.isEmpty()) {
-            emailInputLayout.setError("Please enter your email");
+            emailInputLayout.setError("Моля, въведете вашия имейл"); // <-- Преведено
             return;
         }
 
         if (password.isEmpty()) {
-            passwordInputLayout.setError("Please enter your password");
+            passwordInputLayout.setError("Моля, въведете вашата парола"); // <-- Преведено
             return;
         }
 
@@ -77,6 +78,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
+                    // Показване на съобщението от сървъра (това НЕ Е преведено тук, идва от API)
                     Toast.makeText(LoginActivity.this, loginResponse.getMessage(), Toast.LENGTH_SHORT).show();
                     if (loginResponse.getToken() != null) {
                         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
@@ -89,13 +91,16 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                     }
                 } else {
-                    Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
+                    // Показване на преведено съобщение за неуспешен вход
+                    Toast.makeText(LoginActivity.this, "Неуспешен вход", Toast.LENGTH_SHORT).show(); // <-- Преведено
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                // Показване на преведено съобщение за мрежова грешка
+                String errorMessage = t.getMessage() != null ? t.getMessage() : "Неизвестна грешка";
+                Toast.makeText(LoginActivity.this, "Мрежова грешка: " + errorMessage, Toast.LENGTH_LONG).show(); // <-- Преведено (частично)
             }
         });
     }

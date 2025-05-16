@@ -3,6 +3,7 @@ package com.fitness.fitnessapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils; // Import TextUtils
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -73,10 +74,10 @@ public class RegisterActivity extends AppCompatActivity {
 
         // --- Setup Gender Spinner ---
         // Get the array of genders from resources
-        String[] genders = getResources().getStringArray(R.array.genders_array);
+        String[] gendersDisplay = getResources().getStringArray(R.array.genders_display_array);
         // Create the adapter
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_dropdown_item_1line, genders);
+                this, android.R.layout.simple_dropdown_item_1line, gendersDisplay);
         // Set the adapter on the AutoCompleteTextView, NOT the TextInputLayout
         spinnerGenderAutocomplete.setAdapter(adapter);
 
@@ -102,12 +103,30 @@ public class RegisterActivity extends AppCompatActivity {
         String password = Objects.requireNonNull(edtPassword.getText()).toString().trim();
         String heightStr = Objects.requireNonNull(edtHeight.getText()).toString().trim();
         String weightStr = Objects.requireNonNull(edtWeight.getText()).toString().trim();
-        // Correctly get gender from AutoCompleteTextView
-        String gender = spinnerGenderAutocomplete.getText().toString();
         int age = Integer.parseInt(Objects.requireNonNull(edtAge.getText()).toString().trim());
+        // Correctly get gender from AutoCompleteTextView
+        String selectedDisplayGender = spinnerGenderAutocomplete.getText().toString();
+        String genderForApi = "Male";
+        String[] gendersDisplay = getResources().getStringArray(R.array.genders_display_array);
+        String[] gendersInternal = getResources().getStringArray(R.array.genders_internal_array);
+        int selectedIndex = -1;
+        for (int i = 0; i < gendersDisplay.length; i++) {
+            if (selectedDisplayGender.equals(gendersDisplay[i])) {
+                selectedIndex = i;
+                break;
+            }
+        }
+        if (selectedIndex != -1 && selectedIndex < gendersInternal.length) {
+            genderForApi = gendersInternal[selectedIndex]; // Вземаме съответната стойност "Male" или "Female"
+        } else {
+            Log.e("RegisterActivity", "Грешка при съпоставяне на показвания пол към вътрешна стойност.");
+            Toast.makeText(this, "Грешка при избор на пол.", Toast.LENGTH_SHORT).show();
+            showLoading(false);
+            return;
+        }
 
         // Create User object (Make sure User constructor matches these types)
-        User user = new User(email, password, name, heightStr, gender, weightStr, age, 0);
+        User user = new User(email, password, name, heightStr, genderForApi, weightStr, age, 0);
 
         // --- Perform API Call --- (Keep the Retrofit call logic as is)
         Call<RegisterResponse> call = ApiClient.getApiService(this).registerUser(user);
@@ -123,18 +142,18 @@ public class RegisterActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    String errorMessage = "Registration failed. Please try again.";
+                    String errorMessage = "Регистрацията неуспешна. Моля, опитайте отново."; // Default
                     // Improved error message handling
                     if (response.errorBody() != null) {
                         // Try to get message from standard error body if possible
                         try {
                             // NOTE: You might need a specific error model parser here
-                            errorMessage = "Registration failed: " + response.code() + " - " + response.message();
+                            errorMessage = "Регистрацията неуспешна: " + response.code() + " - " + response.message();
                         } catch (Exception e) { /* Ignore parsing error */ }
                     } else if (response.body() != null && response.body().getMessage() != null) {
                         errorMessage = response.body().getMessage(); // If API puts error in success body
                     } else if (!response.isSuccessful()){
-                        errorMessage = "Registration failed: " + response.code() + " - " + response.message();
+                        errorMessage = "Регистрацията неуспешна: " + response.code() + " - " + response.message();
                     }
                     Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
@@ -143,7 +162,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<RegisterResponse> call, Throwable t) {
                 showLoading(false);
-                Toast.makeText(RegisterActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(RegisterActivity.this, "Мрежова грешка: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -156,7 +175,7 @@ public class RegisterActivity extends AppCompatActivity {
         heightInputLayout.setError(null);
         weightInputLayout.setError(null);
         ageInputLayout.setError(null);
-        genderSpinnerLayout.setError(null); // Reset gender error
+        genderSpinnerLayout.setError(null);
 
         // Get text
         String name = Objects.requireNonNull(edtName.getText()).toString().trim();
@@ -166,107 +185,101 @@ public class RegisterActivity extends AppCompatActivity {
         String weightStr = Objects.requireNonNull(edtWeight.getText()).toString().trim();
         String ageStr = Objects.requireNonNull(edtAge.getText()).toString().trim();
         // Get gender text
-        String gender = spinnerGenderAutocomplete.getText().toString();
+        String selectedDisplayGender = spinnerGenderAutocomplete.getText().toString();
 
         boolean isValid = true;
 
         // --- Validate other fields (Keep Name, Email, Password, Height, Weight, Age validation as is) ---
         // Validate Name
         if (name.isEmpty()) {
-            nameInputLayout.setError("Name cannot be empty");
+            nameInputLayout.setError("Името не може да бъде празно");
             isValid = false;
         }
 
         // Validate Email
         if (email.isEmpty()) {
-            emailInputLayout.setError("Email cannot be empty");
+            emailInputLayout.setError("Имейлът не може да бъде празен");
             isValid = false;
         } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailInputLayout.setError("Invalid email format");
+            emailInputLayout.setError("Невалиден имейл формат");
             isValid = false;
         }
 
         // Validate Password
         if (password.isEmpty()) {
-            passwordInputLayout.setError("Password cannot be empty");
+            passwordInputLayout.setError("Паролата не може да бъде празна");
             isValid = false;
         } else if (password.length() < MIN_PASSWORD_LENGTH) {
-            passwordInputLayout.setError("Password must be at least " + MIN_PASSWORD_LENGTH + " characters");
+            passwordInputLayout.setError("Паролата трябва да е поне " + MIN_PASSWORD_LENGTH + " символа");
             isValid = false;
         }
 
         // Validate Height
         if (heightStr.isEmpty()) {
-            heightInputLayout.setError("Height cannot be empty");
+            heightInputLayout.setError("Височината не може да бъде празна");
             isValid = false;
         } else {
             try {
                 float height = Float.parseFloat(heightStr);
                 if (height < MIN_HEIGHT || height > MAX_HEIGHT) {
-                    heightInputLayout.setError("Height must be between " + MIN_HEIGHT + " and " + MAX_HEIGHT + " cm");
+                    heightInputLayout.setError("Височината трябва да е между " + MIN_HEIGHT + " и " + MAX_HEIGHT + " см");
                     isValid = false;
                 }
             } catch (NumberFormatException e) {
-                heightInputLayout.setError("Invalid number format for height");
+                heightInputLayout.setError("Невалиден числов формат за височина");
                 isValid = false;
             }
         }
 
         // Validate Weight
         if (weightStr.isEmpty()) {
-            weightInputLayout.setError("Weight cannot be empty");
+            weightInputLayout.setError("Теглото не може да бъде празно");
             isValid = false;
         } else {
             try {
                 float weight = Float.parseFloat(weightStr);
                 if (weight < MIN_WEIGHT || weight > MAX_WEIGHT) {
-                    weightInputLayout.setError("Weight must be between " + MIN_WEIGHT + " and " + MAX_WEIGHT + " kg");
+                    weightInputLayout.setError("Теглото трябва да е между " + MIN_WEIGHT + " и " + MAX_WEIGHT + " кг");
                     isValid = false;
                 }
             } catch (NumberFormatException e) {
-                weightInputLayout.setError("Invalid number format for weight");
+                weightInputLayout.setError("Невалиден числов формат за тегло");
                 isValid = false;
             }
         }
 
         // Validate Age
         if (ageStr.isEmpty()) {
-            ageInputLayout.setError("Age cannot be empty");
+            ageInputLayout.setError("Възрастта не може да бъде празна");
             isValid = false;
         } else {
             try {
                 int age = Integer.parseInt(ageStr);
                 if (age < MIN_AGE || age > MAX_AGE) {
-                    ageInputLayout.setError("Age must be between " + MIN_AGE + " and " + MAX_AGE);
+                    ageInputLayout.setError("Възрастта трябва да е между " + MIN_AGE + " и " + MAX_AGE);
                     isValid = false;
                 }
             } catch (NumberFormatException e) {
-                ageInputLayout.setError("Invalid number format for age");
+                ageInputLayout.setError("Невалиден числов формат за възраст");
                 isValid = false;
             }
         }
 
         // --- Validate Gender Spinner ---
-        if (TextUtils.isEmpty(gender)) { // Check if the selection is empty
-            genderSpinnerLayout.setError("Please select a gender"); // Set error on the TextInputLayout
-            // Optionally request focus
-            // genderSpinnerLayout.requestFocus();
+        if (TextUtils.isEmpty(selectedDisplayGender)) {
+            genderSpinnerLayout.setError("Моля, изберете пол");
             isValid = false;
         } else {
-            // Optional but recommended: Check if the selected value is actually in your predefined list
+            String[] validGendersDisplay = getResources().getStringArray(R.array.genders_display_array);
             boolean found = false;
-            String[] validGenders = getResources().getStringArray(R.array.genders_array);
-            for(String validGender : validGenders) {
-                // Use equalsIgnoreCase for case-insensitive comparison if needed
-                if(gender.equals(validGender)) {
+            for(String validDisplayGender : validGendersDisplay) {
+                if(selectedDisplayGender.equals(validDisplayGender)) {
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                genderSpinnerLayout.setError("Invalid gender selection");
-                // Clear the invalid input if desired
-                // spinnerGenderAutocomplete.setText("");
+                genderSpinnerLayout.setError("Невалиден избор на пол");
                 isValid = false;
             }
         }

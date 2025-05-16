@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="@color/colorForButtonsBG"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Product Name"
+            android:text="Име на продукта"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/textPrimary"
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Calories: 0 kcal/100g"
+            android:text="Калории: 0 ккал/100гр"
             android:textSize="18sp"
             android:textColor="@color/textSecondary"
             android:layout_marginBottom="16dp" />
@@ -60,7 +60,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nutrition per 100g"
+                    android:text="Хранителни стойности за 100гр"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/textPrimary"
@@ -70,7 +70,7 @@
                     android:id="@+id/macros"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="P: 0g | C: 0g | F: 0g\nSat. Fat: 0g | Sugars: 0g"
+                    android:text="П: 0гр | В: 0гр | М: 0гр\nНас. мазнини: 0гр | Захари: 0гр"
                     android:textSize="16sp"
                     android:textColor="@color/textSecondary" />
             </LinearLayout>
@@ -79,7 +79,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Quantity (g)"
+            android:hint="Количество (гр)"
             android:textColorHint="@color/textSecondary"
             app:boxBackgroundMode="outline"
             app:boxStrokeColor="@color/colorPrimary"
@@ -102,7 +102,7 @@
             style="@style/RoundedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Log Food"
+            android:text="Запиши храна"
             android:backgroundTint="@color/colorSecondary"
             android:layout_gravity="center" />
 
@@ -114,4 +114,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone" />  </FrameLayout>
+        android:visibility="gone" />
+</FrameLayout>

@@ -6,10 +6,13 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-    <string-array name="genders_array">
+    <string-array name="genders_internal_array">
         <item>Male</item>
         <item>Female</item>
-        <item>Other</item>
+    </string-array>
+    <string-array name="genders_display_array">
+    <item>Мъж</item>
+    <item>Жена</item>
     </string-array>
 
     <string name="lorem_ipsum">

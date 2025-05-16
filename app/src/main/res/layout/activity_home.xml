@@ -1,19 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/gradient"
-    android:padding="16dp">
+    tools:context=".HomeActivity">
 
-    <com.google.android.material.textfield.TextInputLayout
+    <ScrollView
+        android:id="@+id/content_scroll_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_button_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:clipToPadding="false"> <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Select Period"
-        android:textColorHint="@color/textSecondary" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        app:boxStrokeColor="@color/colorPrimary" app:boxCornerRadiusBottomEnd="8dp"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="90dp"> <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Избери период"
+        android:textColorHint="@color/textSecondary"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        app:boxStrokeColor="@color/colorPrimary"
+        app:boxCornerRadiusBottomEnd="8dp"
         app:boxCornerRadiusBottomStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusTopStart="8dp"
@@ -29,278 +47,274 @@
             android:padding="12dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <FrameLayout
-        android:id="@+id/daily_monthly_calorie_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="visible">
+        <FrameLayout
+            android:id="@+id/daily_monthly_calorie_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="visible">
 
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/calories_progress"
-            android:layout_width="200dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/calories_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textPrimary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Калории"
+                    android:textSize="16sp"
+                    android:textColor="@color/textPrimary" />
+
+                <TextView
+                    android:id="@+id/calorie_goal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="от 0 ккал"
+                    android:textSize="14sp"
+                    android:textColor="@color/textSecondary"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/weekly_bar_container"
+            android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_gravity="center"
-            app:indicatorColor="@color/colorPrimary"
-            app:trackColor="@color/textSecondary"
-            app:indicatorSize="12dp"
-            app:trackThickness="4dp"
-            app:trackCornerRadius="2dp" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/calories_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary" /> <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Calories"
-            android:textSize="16sp"
-            android:textColor="@color/textPrimary" />
-
-            <TextView
-                android:id="@+id/calorie_goal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="of 0 kcal"
-                android:textSize="14sp"
-                android:textColor="@color/textSecondary"
-                android:layout_marginTop="4dp" />
+            android:orientation="horizontal"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"
+            android:baselineAligned="false"
+            android:gravity="bottom"
+            android:visibility="gone">
         </LinearLayout>
-    </FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/weekly_bar_container"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:orientation="horizontal"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="16dp"
-        android:baselineAligned="false"
-        android:gravity="bottom"
-        android:visibility="gone" >
-    </LinearLayout>
-
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/nutrition_summary_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        android:layout_marginBottom="16dp">
-
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/nutrition_summary_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/nutrition_summary_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Nutrition Summary"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@color/textPrimary"
-                android:layout_marginBottom="12dp" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginBottom="12dp">
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/nutrition_summary_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Хранително резюме"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/textPrimary"
+                    android:layout_marginBottom="12dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="12dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Protein"
-                        android:textColor="@color/textPrimary" />
-                    <TextView
-                        android:id="@+id/protein_value"
-                        android:layout_width="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Протеин"
+                            android:textColor="@color/textPrimary" />
+                        <TextView
+                            android:id="@+id/protein_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0гр"
+                            android:textColor="@color/textPrimary" />
+                    </LinearLayout>
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/protein_progress"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="0g"
-                        android:textColor="@color/textPrimary" />
+                        android:layout_marginTop="4dp"
+                        app:indicatorColor="@color/proteinColor" app:trackColor="@color/textSecondary"
+                        app:trackThickness="4dp" />
                 </LinearLayout>
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/protein_progress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    app:indicatorColor="@color/proteinColor" app:trackColor="@color/textSecondary"
-                    app:trackThickness="4dp" />
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="12dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="12dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Carbs"
-                        android:textColor="@color/textPrimary" />
-                    <TextView
-                        android:id="@+id/carbs_value"
-                        android:layout_width="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Въглехидрати"
+                            android:textColor="@color/textPrimary" />
+                        <TextView
+                            android:id="@+id/carbs_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0гр"
+                            android:textColor="@color/textPrimary" />
+                    </LinearLayout>
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/carbs_progress"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="0g"
-                        android:textColor="@color/textPrimary" />
+                        android:layout_marginTop="4dp"
+                        app:indicatorColor="@color/carbsColor" app:trackColor="@color/textSecondary"
+                        app:trackThickness="4dp" />
                 </LinearLayout>
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/carbs_progress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    app:indicatorColor="@color/carbsColor" app:trackColor="@color/textSecondary"
-                    app:trackThickness="4dp" />
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="12dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="12dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Fats"
-                        android:textColor="@color/textPrimary" />
-                    <TextView
-                        android:id="@+id/fats_value"
-                        android:layout_width="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Мазнини"
+                            android:textColor="@color/textPrimary" />
+                        <TextView
+                            android:id="@+id/fats_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0гр"
+                            android:textColor="@color/textPrimary" />
+                    </LinearLayout>
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/fats_progress"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="0g"
-                        android:textColor="@color/textPrimary" />
+                        android:layout_marginTop="4dp"
+                        app:indicatorColor="@color/fatsColor" app:trackColor="@color/textSecondary"
+                        app:trackThickness="4dp" />
                 </LinearLayout>
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/fats_progress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    app:indicatorColor="@color/fatsColor" app:trackColor="@color/textSecondary"
-                    app:trackThickness="4dp" />
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
+                    android:orientation="vertical">
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Sugars"
-                        android:textColor="@color/textPrimary" />
-                    <TextView
-                        android:id="@+id/sugar_value"
-                        android:layout_width="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Захари"
+                            android:textColor="@color/textPrimary" />
+                        <TextView
+                            android:id="@+id/sugar_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0гр"
+                            android:textColor="@color/textPrimary" />
+                    </LinearLayout>
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/sugar_progress"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="0g"
-                        android:textColor="@color/textPrimary" />
+                        android:layout_marginTop="4dp"
+                        app:indicatorColor="@color/sugarColor" app:trackColor="@color/textSecondary"
+                        app:trackThickness="4dp" />
                 </LinearLayout>
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/sugar_progress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    app:indicatorColor="@color/sugarColor" app:trackColor="@color/textSecondary"
-                    app:trackThickness="4dp" />
             </LinearLayout>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        </com.google.android.material.card.MaterialCardView>
 
-    <TextView
-        android:id="@+id/history_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Logged Foods"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/textPrimary"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/history_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Записани храни"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/textPrimary"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/food_history_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:visibility="gone"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_food_history"
-        android:clipToPadding="false"
-        android:paddingBottom="8dp"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/food_history_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_food_history"
+            android:clipToPadding="false" /> <TextView
+            android:id="@+id/empty_history_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Няма записани храни за този ден."
+            android:gravity="center"
+            android:textColor="@color/textSecondary"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/empty_history_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="No foods logged for this day."
-        android:gravity="center"
-        android:textColor="@color/textSecondary"
-        android:layout_marginTop="16dp"
-        android:visibility="gone"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+    </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/bottom_button_container"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_gravity="bottom"
-        android:gravity="center">
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@color/colorForButtonsBG"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <Button
             android:id="@+id/btn_home"
-            style="@style/RoundedButton" android:layout_width="0dp"
+            style="@style/RoundedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Home"
+            android:text="Начало"
             android:layout_marginEnd="8dp" />
 
         <Button
             android:id="@+id/btn_scanner"
             style="@style/RoundedButton"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Scan"
+            android:text="Сканер"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp" />
 
@@ -308,8 +322,9 @@
             android:id="@+id/btn_user_info"
             style="@style/RoundedButton"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="User Info"
+            android:text="Профил"
             android:layout_marginStart="8dp" />
     </LinearLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

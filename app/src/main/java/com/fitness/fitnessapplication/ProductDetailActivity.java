@@ -58,7 +58,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
                 // ... (your existing code to handle extras)
-                productName = extras.getString("product_name", "Unknown Product");
+                productName = extras.getString("product_name", "Неизвестен продукт");
                 caloriesPer100g = extras.getFloat("calories", 0);
                 proteinsPer100g = extras.getFloat("proteins", 0);
                 carbsPer100g = extras.getFloat("carbs", 0);
@@ -78,7 +78,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 contentLayout.setVisibility(View.VISIBLE); // Ensure content is visible
             } else {
                 // Handle case where neither barcode nor extras are present
-                Toast.makeText(this, "No product data found", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Няма намерени данни за продукта", Toast.LENGTH_LONG).show();
                 finish(); // Close activity if no data
             }
         }
@@ -91,15 +91,15 @@ public class ProductDetailActivity extends AppCompatActivity {
                 try {
                     float quantity = Float.parseFloat(qtyStr);
                     if (quantity <= 0) {
-                        Toast.makeText(this, "Quantity must be positive", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Няма намерени данни за продукта", Toast.LENGTH_LONG).show();
                         return;
                     }
                     logConsumption(quantity);
                 } catch (NumberFormatException e) {
-                    Toast.makeText(this, "Invalid quantity", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Невалидно количество", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(this, "Enter quantity", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Въведете количество", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -128,7 +128,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null && response.body().getProduct() != null) {
                     // ... (your existing code to process the successful response)
                     ProductResponse.Product product = response.body().getProduct();
-                    productName = product.getProductName() != null ? product.getProductName() : "Unknown Product";
+                    productName = product.getProductName() != null ? product.getProductName() : "Неизвестен продукт";
                     caloriesPer100g = product.getNutriments() != null ? product.getNutriments().getCalories() : 0f;
                     proteinsPer100g = product.getNutriments() != null ? product.getNutriments().getProteins() : 0f;
                     carbsPer100g = product.getNutriments() != null ? product.getNutriments().getCarbs() : 0f;
@@ -137,8 +137,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                     sugarsPer100g = product.getNutriments() != null ? product.getNutriments().getSugars() : 0f;
 
                     nameView.setText(productName);
-                    caloriesView.setText("Calories: " + caloriesPer100g + " kcal/100g");
-                    macrosView.setText(String.format("P: %.1fg | C: %.1fg | F: %.1fg\nSat. Fat: %.1fg | Sugars: %.1fg",
+                    caloriesView.setText("Калории: " + caloriesPer100g + " kcal/100g");
+                    macrosView.setText(String.format("П: %.1fg | В: %.1fg | М: %.1fg\nНаситени. Мазнини: %.1fg | Захари: %.1fg",
                             proteinsPer100g, carbsPer100g, fatsPer100g, saturatedFatPer100g, sugarsPer100g));
                     String imageUrl = product.getImageUrl();
                     if (imageUrl != null && !imageUrl.isEmpty()) {
@@ -149,7 +149,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                     }
 
                 } else {
-                    Toast.makeText(ProductDetailActivity.this, "Product not found or error in response", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProductDetailActivity.this, "Продуктът не е намерен или има грешка в отговора", Toast.LENGTH_SHORT).show();
                     // Consider finishing the activity or showing an error state
                     // finish();
                 }
@@ -162,7 +162,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 // Optional: Show main content again (maybe show an error message within it)
                 // contentLayout.setVisibility(View.VISIBLE);
 
-                Toast.makeText(ProductDetailActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProductDetailActivity.this, "Мрежова грешка: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 // Consider finishing the activity or showing an error state
                 // finish();
             }
@@ -190,20 +190,20 @@ public class ProductDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(ProductDetailActivity.this, "Logged successfully!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProductDetailActivity.this,  "Записано успешно!", Toast.LENGTH_SHORT).show();
                     // Return to HomeActivity
                     Intent intent = new Intent(ProductDetailActivity.this, HomeActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(ProductDetailActivity.this, "Log failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProductDetailActivity.this, "Записът неуспешен: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(ProductDetailActivity.this, "Log Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProductDetailActivity.this, "Грешка при запис: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

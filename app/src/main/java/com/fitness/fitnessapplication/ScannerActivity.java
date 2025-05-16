@@ -24,7 +24,7 @@ public class ScannerActivity extends AppCompatActivity {
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(),
             result -> {
                 if (result.getContents() == null) {
-                    Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Отказано", Toast.LENGTH_LONG).show();
                 } else {
                     String barcode = result.getContents();
                     txtResult.setText(barcode);
@@ -47,7 +47,7 @@ public class ScannerActivity extends AppCompatActivity {
         ScanOptions options = new ScanOptions();
         options.setOrientationLocked(false);
         options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES);
-        options.setPrompt("Scan a barcode");
+        options.setPrompt("Сканирай баркод");
         options.setCameraId(0);
         options.setBeepEnabled(false);
         options.setBarcodeImageEnabled(true);
@@ -78,13 +78,14 @@ public class ScannerActivity extends AppCompatActivity {
                     intent.putExtra("image_url", product.getImageUrl());
                     startActivity(intent);
                 } else {
-                    Toast.makeText(ScannerActivity.this, "Product not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ScannerActivity.this, "Продуктът не е намерен", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
-                Toast.makeText(ScannerActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ScannerActivity.this, "Грешка: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                txtResult.setText("Сканирай баркод, за да получиш информация за продукта");
             }
         });
     }

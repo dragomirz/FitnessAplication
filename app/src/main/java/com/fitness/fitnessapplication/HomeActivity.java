@@ -1,12 +1,10 @@
-package com.fitness.fitnessapplication; // Use your actual package name
-
+package com.fitness.fitnessapplication;
+import java.util.Calendar;
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -24,44 +22,39 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager; // Added
-import androidx.recyclerview.widget.RecyclerView; // Added
-
-// Data Models (ensure correct package)
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.fitness.fitnessapplication.DataModels.DailyLogResponse;
-import com.fitness.fitnessapplication.DataModels.FoodLog; // Added
+import com.fitness.fitnessapplication.DataModels.FoodLog;
 import com.fitness.fitnessapplication.DataModels.User;
-
-// Retrofit (ensure correct package)
 import com.fitness.fitnessapplication.RetroFit.ApiClient;
 import com.fitness.fitnessapplication.RetroFit.ApiService;
 
-// Adapter (ensure correct package)
-import com.fitness.fitnessapplication.Adapters.FoodHistoryAdapter; // Added
 
-// Other components
+import com.fitness.fitnessapplication.Adapters.FoodHistoryAdapter;
+
+
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
-// Java utils
-import java.text.ParseException;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections; // Added
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-// Retrofit
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeActivity extends AppCompatActivity {
 
-    // Existing Views
+
     private AutoCompleteTextView periodDropdown;
     private TextView caloriesValue;
     private TextView calorieGoalText;
@@ -69,31 +62,30 @@ public class HomeActivity extends AppCompatActivity {
     private TextView carbsValue;
     private TextView fatsValue;
     private TextView sugarValue;
-    private CircularProgressIndicator caloriesProgress;
     private LinearProgressIndicator proteinProgress;
     private LinearProgressIndicator carbsProgress;
     private LinearProgressIndicator fatsProgress;
     private LinearProgressIndicator sugarProgress;
     private Button btnHome, btnScanner, btnUserInfo;
 
-    // New/Modified Views
+
     private FrameLayout dailyMonthlyCalorieView;
     private LinearLayout weeklyBarContainer;
     private TextView nutritionSummaryTitle;
 
-    // History Section Views
+
     private RecyclerView foodHistoryRecyclerView;
     private FoodHistoryAdapter foodHistoryAdapter;
     private TextView historyTitleTextView;
     private TextView emptyHistoryTextView;
 
-    // Other Variables
-    private String[] periods = {"Daily", "Weekly", "Monthly"};
+
+    private String[] periods = {"Дневно", "Седмично"};
     private ActivityResultLauncher<ScanOptions> barcodeLauncher;
     private List<DailyLogResponse.DailyData> weeklyDataCache;
     private View currentlySelectedBarView = null;
 
-    // Nutrition goals
+
     private int DAILY_CALORIE_GOAL = 2000;
     private int WEEKLY_CALORIE_GOAL = 14000;
     private int MONTHLY_CALORIE_GOAL = 60000;
@@ -111,12 +103,12 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         initializeViews();
-        setupRecyclerView(); // Setup history RecyclerView
+        setupRecyclerView();
         setupPeriodSelector();
         setupBarcodeScanner();
         setupButtonListeners();
 
-        getUserData(); // Fetches user data -> updates goals -> fetches logs & potentially history
+        getUserData();
     }
 
     @Override
@@ -124,7 +116,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onResume();
         String currentPeriod = periodDropdown.getText().toString();
         if (!currentPeriod.isEmpty()) {
-            getUserData(); // Re-fetch goals and then data
+            getUserData();
         } else {
             periodDropdown.setText(periods[0], false);
             getUserData();
@@ -132,7 +124,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        // Existing Views
+
         periodDropdown = findViewById(R.id.period_dropdown);
         caloriesValue = findViewById(R.id.calories_value);
         calorieGoalText = findViewById(R.id.calorie_goal);
@@ -140,7 +132,7 @@ public class HomeActivity extends AppCompatActivity {
         carbsValue = findViewById(R.id.carbs_value);
         fatsValue = findViewById(R.id.fats_value);
         sugarValue = findViewById(R.id.sugar_value);
-        caloriesProgress = findViewById(R.id.calories_progress);
+
         proteinProgress = findViewById(R.id.protein_progress);
         carbsProgress = findViewById(R.id.carbs_progress);
         fatsProgress = findViewById(R.id.fats_progress);
@@ -149,21 +141,17 @@ public class HomeActivity extends AppCompatActivity {
         btnScanner = findViewById(R.id.btn_scanner);
         btnUserInfo = findViewById(R.id.btn_user_info);
 
-        // New/Modified Views
         dailyMonthlyCalorieView = findViewById(R.id.daily_monthly_calorie_view);
         weeklyBarContainer = findViewById(R.id.weekly_bar_container);
         nutritionSummaryTitle = findViewById(R.id.nutrition_summary_title);
 
-        // Initialize History Views
         historyTitleTextView = findViewById(R.id.history_title);
         foodHistoryRecyclerView = findViewById(R.id.food_history_recycler_view);
         emptyHistoryTextView = findViewById(R.id.empty_history_text);
 
-        // Initial UI Goal Setup
         updateUiForGoals(DAILY_CALORIE_GOAL, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
     }
 
-    // Setup History RecyclerView
     private void setupRecyclerView() {
         foodHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         foodHistoryAdapter = new FoodHistoryAdapter(); // Create adapter instance
@@ -174,27 +162,39 @@ public class HomeActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, periods);
         periodDropdown.setAdapter(adapter);
-        periodDropdown.setText(periods[0], false); // Set initial value
+        periodDropdown.setText(periods[0], false);
 
         periodDropdown.setOnItemClickListener((parent, view, position, id) -> {
-            highlightBar(null); // Clear weekly selection
-            fetchLogs(periods[position]); // Fetch data for newly selected period
+            highlightBar(null);
+
+            String selectedDisplayPeriod = periods[position];
+            String internalKeyword;
+
+            if (selectedDisplayPeriod.equals(periods[0])) {
+                internalKeyword = "daily";
+            } else if (selectedDisplayPeriod.equals(periods[1])) {
+                internalKeyword = "weekly";
+
+            } else {
+                internalKeyword = "daily";
+            }
+
+            fetchLogs(internalKeyword);
         });
     }
 
     private void setupBarcodeScanner() {
         barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
             if (result.getContents() == null) {
-                Toast.makeText(this, "Scan cancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Сканирането отказано", Toast.LENGTH_SHORT).show();
             } else {
                 String barcode = result.getContents();
-                // Ensure ProductDetailActivity exists and can handle the intent
                 try {
                     Intent intent = new Intent(HomeActivity.this, ProductDetailActivity.class);
                     intent.putExtra("barcode", barcode);
                     startActivity(intent);
                 } catch (Exception e) {
-                    Toast.makeText(this, "Could not open product details.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Неуспешно отваряне на детайли за продукта.", Toast.LENGTH_SHORT).show();
                     System.err.println("Error launching ProductDetailActivity: " + e.getMessage());
                 }
             }
@@ -217,9 +217,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private void refreshData() {
         String period = periodDropdown.getText().toString();
-        // Re-fetch user data to ensure goals are up-to-date, then fetch logs
         getUserData();
-        Toast.makeText(this, "Refreshing " + period + " data", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Опресняване на " + period + " данни", Toast.LENGTH_SHORT).show();
     }
 
     private void scanBarcode() {
@@ -229,7 +228,7 @@ public class HomeActivity extends AppCompatActivity {
             ScanOptions options = new ScanOptions();
             options.setOrientationLocked(false);
             options.setDesiredBarcodeFormats(ScanOptions.PRODUCT_CODE_TYPES);
-            options.setPrompt("Scan a product barcode");
+            options.setPrompt("Сканирай баркод на продукт");
             options.setCameraId(0);
             options.setBeepEnabled(true);
             options.setBarcodeImageEnabled(false);
@@ -244,7 +243,7 @@ public class HomeActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 scanBarcode();
             } else {
-                Toast.makeText(this, "Camera permission is required to scan barcodes.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Необходимо е разрешение за камерата за сканиране на баркодове.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -252,7 +251,7 @@ public class HomeActivity extends AppCompatActivity {
     private void getUserData() {
         ApiService apiService = ApiClient.getApiService(this);
         if (apiService == null) {
-            Toast.makeText(HomeActivity.this, "API Service Error.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(HomeActivity.this, "Грешка в API услугата.", Toast.LENGTH_SHORT).show();
             loadGoalsFromPrefsAndFetchLogs(); // Attempt fallback
             return;
         }
@@ -270,7 +269,6 @@ public class HomeActivity extends AppCompatActivity {
                     editor.putString("weight", userData.getWeight());
                     editor.putString("height", userData.getHeight());
                     editor.putString("gender", userData.getGender());
-                    // Ensure getCalories() exists and returns a number
                     try {
                         editor.putFloat("calorie_goal", (float) userData.getCalories());
                     } catch (Exception e) {
@@ -282,14 +280,14 @@ public class HomeActivity extends AppCompatActivity {
                 } else if (response.code() == 401 || response.code() == 403) {
                     handleAuthFailure();
                 } else {
-                    Toast.makeText(HomeActivity.this, "Failed to get user data: " + response.code(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(HomeActivity.this, "Неуспешно извличане на потребителски данни: " + response.code(), Toast.LENGTH_LONG).show();
                     loadGoalsFromPrefsAndFetchLogs(); // Attempt fallback
                 }
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                Toast.makeText(HomeActivity.this, "Network error getting user data.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "Мрежова грешка при извличане на потребителски данни.", Toast.LENGTH_SHORT).show();
                 System.err.println("Network error getUserData: " + t.getMessage());
                 loadGoalsFromPrefsAndFetchLogs(); // Attempt fallback
             }
@@ -305,20 +303,30 @@ public class HomeActivity extends AppCompatActivity {
     private void updateCalorieGoal(double calorieGoal) {
         DAILY_CALORIE_GOAL = (int) Math.round(calorieGoal);
         WEEKLY_CALORIE_GOAL = DAILY_CALORIE_GOAL * 7;
-        MONTHLY_CALORIE_GOAL = DAILY_CALORIE_GOAL * 30;
+        String currentDisplayPeriod = periodDropdown.getText().toString();
+        String internalKeyword;
+        if (currentDisplayPeriod.isEmpty() || !List.of(periods).contains(currentDisplayPeriod)) {
+            currentDisplayPeriod = periods[0];
+            periodDropdown.setText(currentDisplayPeriod, false);
+            internalKeyword = "daily";
+        } else {
+            if (currentDisplayPeriod.equals(periods[0])) {
+                internalKeyword = "daily";
+            } else if (currentDisplayPeriod.equals(periods[1])) {
+                internalKeyword = "weekly";
 
-        String currentPeriod = periodDropdown.getText().toString();
-        if (currentPeriod.isEmpty()) {
-            currentPeriod = periods[0];
-            periodDropdown.setText(currentPeriod, false);
+            } else {
+                internalKeyword = "daily";
+            }
         }
-        fetchLogs(currentPeriod); // Fetch logs *after* goals are set
+
+        fetchLogs(internalKeyword);
     }
 
-    private void fetchLogs(String period) {
+    private void fetchLogs(String internalPeriodKeyword) {
         ApiService apiService = ApiClient.getApiService(this);
         if (apiService == null) {
-            showError("API Service Error");
+            showError("Грешка в API услугата");
             return;
         }
         String currentDateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
@@ -330,46 +338,35 @@ public class HomeActivity extends AppCompatActivity {
         int summaryFatsGoal = FATS_GOAL_DAILY;
         int summarySugarGoal = SUGAR_GOAL_DAILY;
 
-        String dateForHistory = currentDateStr; // Today's date by default
-        boolean showHistory = false; // Flag to control history section visibility
+        String dateForHistory = currentDateStr;
+        boolean showHistory = false;
 
-        // Configure UI based on period
-        if ("Weekly".equals(period)) {
+        // Конфигуриране на UI и цели въз основа на АНГЛИЙСКИЯ ключ
+        if ("weekly".equals(internalPeriodKeyword)) { // Сравняваме с "weekly"
             dailyMonthlyCalorieView.setVisibility(View.GONE);
             weeklyBarContainer.setVisibility(View.VISIBLE);
-            nutritionSummaryTitle.setText("Nutrition Summary (Select a Day)");
-            showHistory = false; // History shown on bar click
+            nutritionSummaryTitle.setText("Хранително резюме (Избери ден)");
+            showHistory = false;
         } else {
             dailyMonthlyCalorieView.setVisibility(View.VISIBLE);
             weeklyBarContainer.setVisibility(View.GONE);
-            nutritionSummaryTitle.setText("Nutrition Summary");
+            nutritionSummaryTitle.setText("Хранително резюме");
 
-            if ("Monthly".equals(period)) {
-                summaryCalorieGoal = MONTHLY_CALORIE_GOAL;
-                summaryProteinGoal *= 30;
-                summaryCarbsGoal *= 30;
-                summaryFatsGoal *= 30;
-                summarySugarGoal *= 30;
-                showHistory = false; // No history for monthly
-            } else { // Daily
-                summaryCalorieGoal = DAILY_CALORIE_GOAL;
-                showHistory = true; // Show history for daily
-            }
+
+            summaryCalorieGoal = DAILY_CALORIE_GOAL;
+            showHistory = true;
+
             updateUiForGoals(summaryCalorieGoal, summaryProteinGoal, summaryCarbsGoal, summaryFatsGoal, summarySugarGoal);
         }
 
-        // Set history visibility *before* making the call
         setHistoryVisibility(showHistory);
         if (showHistory) {
-            fetchFoodHistoryForDate(dateForHistory); // Fetch history if needed (i.e., for Daily view)
+            fetchFoodHistoryForDate(dateForHistory);
         }
 
+        String rangeParam = internalPeriodKeyword.equalsIgnoreCase("daily") ? null : internalPeriodKeyword.toLowerCase(Locale.US);
+        call = apiService.getDailyLogs(currentDateStr, rangeParam);
 
-        // Prepare and make the API call for aggregate/weekly data
-        String rangeParam = period.equalsIgnoreCase("Daily") ? null : period.toLowerCase(Locale.US);
-        call = apiService.getDailyLogs(currentDateStr, rangeParam); // Always use today's date for this call context
-
-        // Store final goals for use inside callback
         int finalSummaryCalorieGoal = summaryCalorieGoal;
         int finalSummaryProteinGoal = summaryProteinGoal;
         int finalSummaryCarbsGoal = summaryCarbsGoal;
@@ -381,7 +378,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onResponse(Call<DailyLogResponse> call, Response<DailyLogResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     DailyLogResponse data = response.body();
-                    if ("Weekly".equals(period)) {
+                    if ("weekly".equals(internalPeriodKeyword)) {
                         if (data.getDailyData() != null && !data.getDailyData().isEmpty()) {
                             weeklyDataCache = data.getDailyData();
                             populateWeeklyBars(weeklyDataCache);
@@ -395,65 +392,61 @@ public class HomeActivity extends AppCompatActivity {
                                 }
                                 // Fetch history for the initially displayed day
                                 if (lastDay != null && lastDay.getDate() != null) {
-                                    setHistoryVisibility(true); // Show history section now
+                                    setHistoryVisibility(true);
                                     fetchFoodHistoryForDate(lastDay.getDate());
                                 } else {
-                                    setHistoryVisibility(false); // Hide if date is bad
+                                    setHistoryVisibility(false);
                                 }
                             } else {
-                                setHistoryVisibility(false); // Hide if no data
+                                setHistoryVisibility(false);
                             }
                         } else {
                             weeklyDataCache = new ArrayList<>();
                             weeklyBarContainer.removeAllViews();
-                            showError("No weekly data available.");
+                            showError("Няма налични седмични данни.");
                             updateNutritionSummaryForDay(null, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
-                            setHistoryVisibility(false); // Hide history section
+                            setHistoryVisibility(false);
                         }
-                    } else { // Daily or Monthly Aggregate View
+                    } else {
                         if (data.getTotals() != null) {
                             updateAggregateNutritionData(data.getTotals(), finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
-                            // History fetch for Daily was already triggered before the call
+
                         } else {
-                            showError("No totals data available for " + period);
+                            String displayPeriod = periodDropdown.getText().toString();
+                            showError("Няма налични общи данни за " + displayPeriod);
                             updateAggregateNutritionData(null, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
                         }
                     }
                 } else if (response.code() == 401 || response.code() == 403) {
                     handleAuthFailure();
                 } else {
-                    String errorMsg = "Error fetching data (" + response.code() + ")";
+                    String errorMsg = "Грешка при извличане на данни (" + response.code() + ")";
                     try { if (response.errorBody() != null) errorMsg += ": " + response.errorBody().string(); } catch (Exception e) { /* Ignore */ }
                     showError(errorMsg);
-                    clearViewsOnError(period, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
+                    clearViewsOnError(internalPeriodKeyword, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
                 }
             }
 
             @Override
             public void onFailure(Call<DailyLogResponse> call, Throwable t) {
-                showError("Network error: " + t.getMessage());
+                showError("Мрежова грешка: " + t.getMessage());
                 System.err.println("Network Error fetchLogs: " + t.toString());
-                clearViewsOnError(period, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
+                clearViewsOnError(internalPeriodKeyword, finalSummaryCalorieGoal, finalSummaryProteinGoal, finalSummaryCarbsGoal, finalSummaryFatsGoal, finalSummarySugarGoal);
             }
         });
     }
-
-    // Updates Aggregate View (Daily/Monthly Circular Progress)
     private void updateAggregateNutritionData(DailyLogResponse.Totals totals, int calorieGoal, int proteinGoal,
                                               int carbsGoal, int fatsGoal, int sugarGoal) {
         if (totals != null) {
             int calories = Math.round(totals.getCalories());
             caloriesValue.setText(String.valueOf(calories));
-            animateProgress(caloriesProgress, calories);
             updateNutritionSummary(totals, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
         } else {
             caloriesValue.setText("0");
-            animateProgress(caloriesProgress, 0);
             updateNutritionSummary(null, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
         }
     }
 
-    // Reusable method to update ONLY the Nutrition Summary Card's linear bars and text
     private void updateNutritionSummary(DailyLogResponse.Totals totals, int proteinGoal, int carbsGoal, int fatsGoal, int sugarGoal) {
         proteinProgress.setMax(Math.max(1, proteinGoal));
         carbsProgress.setMax(Math.max(1, carbsGoal));
@@ -488,7 +481,6 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    // --- Weekly Bar Population and Interaction ---
     private void populateWeeklyBars(List<DailyLogResponse.DailyData> dailyDataList) {
         weeklyBarContainer.removeAllViews();
         currentlySelectedBarView = null;
@@ -496,7 +488,7 @@ public class HomeActivity extends AppCompatActivity {
 
         LayoutInflater inflater = LayoutInflater.from(this);
         SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        SimpleDateFormat outputFormat = new SimpleDateFormat("EEE", Locale.US);
+
 
         double maxCalories = 0;
         for (DailyLogResponse.DailyData dayData : dailyDataList) {
@@ -522,9 +514,33 @@ public class HomeActivity extends AppCompatActivity {
             try {
                 if (dayData.getDate() != null) {
                     Date date = inputFormat.parse(dayData.getDate());
-                    dayLabel.setText(outputFormat.format(date).substring(0, 1));
-                } else { dayLabel.setText("?"); }
-            } catch (Exception e) { dayLabel.setText("?"); System.err.println("Error parsing date for label: " + e.getMessage()); }
+
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(date);
+                    int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+
+                    String dayLetter;
+
+                    switch (dayOfWeek) {
+                        case Calendar.MONDAY:    dayLetter = "П"; break;
+                        case Calendar.TUESDAY:   dayLetter = "В"; break;
+                        case Calendar.WEDNESDAY: dayLetter = "С"; break;
+                        case Calendar.THURSDAY:  dayLetter = "Ч"; break;
+                        case Calendar.FRIDAY:    dayLetter = "П"; break;
+                        case Calendar.SATURDAY:  dayLetter = "С"; break;
+                        case Calendar.SUNDAY:    dayLetter = "Н"; break;
+                        default:                 dayLetter = "?"; break;
+                    }
+                    dayLabel.setText(dayLetter);
+
+                } else {
+                    dayLabel.setText("?");
+                }
+            } catch (Exception e) {
+                dayLabel.setText("?");
+                System.err.println("Error parsing date or getting day letter: " + e.getMessage());
+            }
+
 
             double currentCalories = (dayData.getTotals() != null) ? dayData.getTotals().getCalories() : 0;
             int barHeight = (currentCalories > 0) ? Math.max(minBarHeightPx, (int) ((currentCalories / maxCalories) * maxBarHeightPx)) : 0;
@@ -538,8 +554,8 @@ public class HomeActivity extends AppCompatActivity {
                     if (selectedDay != null && selectedDay.getDate() != null) {
                         updateNutritionSummaryForDay(selectedDay, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
                         highlightBar(barView);
-                        setHistoryVisibility(true); // Show history section
-                        fetchFoodHistoryForDate(selectedDay.getDate()); // Fetch history for clicked day
+                        setHistoryVisibility(true);
+                        fetchFoodHistoryForDate(selectedDay.getDate());
                     }
                 }
             });
@@ -548,25 +564,24 @@ public class HomeActivity extends AppCompatActivity {
         weeklyBarContainer.requestLayout();
     }
 
-    // Updates the Nutrition Summary Card based on selected day's data
+
     private void updateNutritionSummaryForDay(DailyLogResponse.DailyData dayData, int proteinGoal, int carbsGoal, int fatsGoal, int sugarGoal) {
         if (dayData != null && dayData.getDate() != null) {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM d", Locale.US);
             try {
                 Date date = inputFormat.parse(dayData.getDate());
-                nutritionSummaryTitle.setText("Nutrition Summary (" + outputFormat.format(date) + ")");
+                nutritionSummaryTitle.setText("Хранително резюме");
             } catch (Exception e) {
-                nutritionSummaryTitle.setText("Nutrition Summary (Selected Day)");
+                nutritionSummaryTitle.setText("Хранително резюме (Избран ден)");
             }
             updateNutritionSummary(dayData.getTotals(), proteinGoal, carbsGoal, fatsGoal, sugarGoal);
         } else {
-            nutritionSummaryTitle.setText("Nutrition Summary");
+            nutritionSummaryTitle.setText("Хранително резюме");
             updateNutritionSummary(null, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
         }
     }
 
-    // Helper to highlight the selected bar
     private void highlightBar(View selectedBar) {
         if (currentlySelectedBarView != null) {
             currentlySelectedBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
@@ -581,21 +596,20 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    // --- History Fetching and Display ---
     private void fetchFoodHistoryForDate(String dateString) {
         if (dateString == null || dateString.isEmpty()) {
-            updateHistoryList(Collections.emptyList(), "Error: Invalid date");
+            updateHistoryList(Collections.emptyList(), "Грешка: Невалидна дата");
             return;
         }
 
         ApiService apiService = ApiClient.getApiService(this);
         if (apiService == null) {
-            updateHistoryList(Collections.emptyList(), "Error: API Service unavailable");
+            updateHistoryList(Collections.emptyList(), "Грешка: API услугата е недостъпна");
             return;
         }
 
-        // Optional: Show loading indicator for history
-        emptyHistoryTextView.setText("Loading history...");
+
+        emptyHistoryTextView.setText("Зареждане на история...");
         emptyHistoryTextView.setVisibility(View.VISIBLE);
         foodHistoryRecyclerView.setVisibility(View.GONE);
 
@@ -606,27 +620,27 @@ public class HomeActivity extends AppCompatActivity {
             public void onResponse(Call<List<FoodLog>> call, Response<List<FoodLog>> response) {
                 if (response.isSuccessful()) {
                     List<FoodLog> logs = response.body();
-                    String title = "Logged Foods";
+                    String title = "Записани храни";
                     try {
                         SimpleDateFormat inputFmt = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                         SimpleDateFormat titleFmt = new SimpleDateFormat("EEE, MMM d", Locale.US);
                         Date parsedDate = inputFmt.parse(dateString);
-                        title = "Logged Foods (" + titleFmt.format(parsedDate) + ")";
+                        title = "Записани храни (" + titleFmt.format(parsedDate) + ")";
                         String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
                         if (dateString.equals(todayStr)) {
-                            title = "Logged Foods Today";
+                            title = "Записани храни днес";
                         }
                     } catch (Exception e) { /* Keep default title */ }
                     updateHistoryList(logs, title);
                 } else {
-                    updateHistoryList(Collections.emptyList(), "Error loading history (" + response.code() + ")");
+                    updateHistoryList(Collections.emptyList(), "Грешка при зареждане на история (" + response.code() + ")");
                 }
             }
 
             @Override
             public void onFailure(Call<List<FoodLog>> call, Throwable t) {
                 System.err.println("Network error fetching history: " + t.getMessage());
-                updateHistoryList(Collections.emptyList(), "Network Error");
+                updateHistoryList(Collections.emptyList(), "Мрежова грешка");
             }
         });
     }
@@ -641,39 +655,34 @@ public class HomeActivity extends AppCompatActivity {
             foodHistoryAdapter.updateData(Collections.emptyList());
             foodHistoryRecyclerView.setVisibility(View.GONE);
             emptyHistoryTextView.setVisibility(View.VISIBLE);
-            if (title.toLowerCase().contains("error") || title.equalsIgnoreCase("Network Error")) {
-                emptyHistoryTextView.setText("Could not load history.");
+            if (title.toLowerCase().contains("грешка") || title.equalsIgnoreCase("мрежова грешка")) {
+                emptyHistoryTextView.setText("Неуспешно зареждане на историята.");
             } else {
-                emptyHistoryTextView.setText("No foods logged for this day.");
+                emptyHistoryTextView.setText("Няма записани храни за този ден.");
             }
         }
     }
 
     private void setHistoryVisibility(boolean isVisible) {
         int visibility = isVisible ? View.VISIBLE : View.GONE;
-        historyTitleTextView.setVisibility(visibility); // Title always matches section visibility
-
-        // RecyclerView and Empty text visibility is handled by updateHistoryList OR when hiding
+        historyTitleTextView.setVisibility(visibility);
         if (!isVisible) {
             foodHistoryRecyclerView.setVisibility(View.GONE);
             emptyHistoryTextView.setVisibility(View.GONE);
-            if (foodHistoryAdapter != null) { // Clear adapter data when hiding
+            if (foodHistoryAdapter != null) {
                 foodHistoryAdapter.updateData(Collections.emptyList());
             }
         } else {
-            // If becoming visible, updateHistoryList will handle showing list or empty text
+
         }
     }
 
-    // --- Utility and Helper Methods ---
     private int dpToPx(int dp) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
 
     private void updateUiForGoals(int calorieGoal, int proteinGoal, int carbsGoal, int fatsGoal, int sugarGoal) {
-        caloriesProgress.setMax(Math.max(1, calorieGoal));
-        calorieGoalText.setText("of " + calorieGoal + " kcal");
-        // Linear bar max values are set in updateNutritionSummary
+        calorieGoalText.setText("от " + calorieGoal + " kcal");
     }
 
     private void animateProgress(CircularProgressIndicator indicator, int value) {
@@ -689,27 +698,30 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void handleAuthFailure() {
-        Toast.makeText(this, "Session expired. Please log in again.", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Сесията изтече. Моля, влезте отново.", Toast.LENGTH_LONG).show();
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        sharedPreferences.edit().clear().apply(); // Clear all prefs on auth failure
+        sharedPreferences.edit().clear().apply();
         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
 
-    private void clearViewsOnError(String period, int calorieGoal, int proteinGoal, int carbsGoal, int fatsGoal, int sugarGoal){
-        if ("Weekly".equals(period)) {
+
+    private void clearViewsOnError(String internalPeriodKeyword, int calorieGoal, int proteinGoal, int carbsGoal, int fatsGoal, int sugarGoal){
+
+        if ("weekly".equals(internalPeriodKeyword)) {
             weeklyDataCache = new ArrayList<>();
             weeklyBarContainer.removeAllViews();
             updateNutritionSummaryForDay(null, PROTEIN_GOAL_DAILY, CARBS_GOAL_DAILY, FATS_GOAL_DAILY, SUGAR_GOAL_DAILY);
-            setHistoryVisibility(false); // Hide history on error
+            setHistoryVisibility(false);
         } else {
             updateAggregateNutritionData(null, calorieGoal, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
-            if("Daily".equals(period)){
-                setHistoryVisibility(true); // Keep section visible but show error
-                updateHistoryList(Collections.emptyList(), "Error loading data");
-            } else { // Monthly
+
+            if("daily".equals(internalPeriodKeyword)){
+                setHistoryVisibility(true);
+                updateHistoryList(Collections.emptyList(), "Грешка при зареждане на данни");
+            } else {
                 setHistoryVisibility(false);
             }
         }
@@ -718,12 +730,28 @@ public class HomeActivity extends AppCompatActivity {
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         System.err.println("HomeActivity Error: " + message);
+        String displayPeriod = periodDropdown.getText().toString();
+        String internalKeyword;
+
+        if (displayPeriod.equals(periods[0])) {
+            internalKeyword = "daily";
+        } else if (displayPeriod.equals(periods[1])) {
+            internalKeyword = "weekly";
+        } else {
+
+            internalKeyword = "daily";
+            if (displayPeriod.isEmpty()) {
+                periodDropdown.setText(periods[0], false);
+            }
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        System.err.println("HomeActivity Error: " + message);
         String period = periodDropdown.getText().toString();
         int calorieGoal = period.equals("Monthly") ? MONTHLY_CALORIE_GOAL : DAILY_CALORIE_GOAL;
         int proteinGoal = PROTEIN_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
         int carbsGoal = CARBS_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
         int fatsGoal = FATS_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
         int sugarGoal = SUGAR_GOAL_DAILY * (period.equals("Monthly") ? 30 : 1);
-        clearViewsOnError(period, calorieGoal, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
+        clearViewsOnError(internalKeyword, calorieGoal, proteinGoal, carbsGoal, fatsGoal, sugarGoal);
     }
 }

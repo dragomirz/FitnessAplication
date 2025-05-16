@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:text="Scan a barcode to get product info"
+            android:text="Сканирай баркод, за да получиш информация за продукта"
             android:textSize="18sp"
             android:textColor="@color/textPrimary"
             android:textAlignment="center"/>
@@ -29,21 +29,10 @@
             style="@style/RoundedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start Scan"
+            android:text="Започни сканиране"
             android:paddingStart="32dp"
             android:paddingEnd="32dp"/>
 
     </LinearLayout>
 
-    <View
-        android:id="@+id/loading_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#80000000"
-        android:visibility="gone" />  <ProgressBar
-    android:id="@+id/loading_spinner"
-    style="?android:attr/progressBarStyleLarge"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:visibility="gone" /> </FrameLayout>
+</FrameLayout>

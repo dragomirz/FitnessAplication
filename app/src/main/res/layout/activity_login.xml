@@ -8,7 +8,8 @@
     tools:context=".LoginActivity">
 
     <LinearLayout
-        android:id="@+id/login_content_layout" android:layout_width="match_parent"
+        android:id="@+id/login_content_layout"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
@@ -19,23 +20,19 @@
             android:layout_height="120dp"
             android:src="@drawable/icon"
             android:layout_marginBottom="32dp"
-            android:contentDescription="App Logo" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Welcome!"
-            android:textSize="32sp"
-            android:textColor="@color/buttonText"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:contentDescription="Лого на приложението" />  <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Добре дошли!"                          android:textSize="32sp"
+        android:textColor="@color/buttonText"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/email_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:textColorHint="@color/textSecondary"
+            android:hint="Имейл"                                 android:textColorHint="@color/textSecondary"
             app:boxBackgroundMode="outline"
             app:boxStrokeColor="@color/colorPrimary"
             app:boxCornerRadiusBottomEnd="8dp"
@@ -48,7 +45,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
-                android:maxLength="100" android:textColor="@color/textPrimary" />
+                android:maxLength="100"
+                android:textColor="@color/textPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -56,20 +54,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Password"
-            android:textColorHint="@color/textSecondary"
+            android:hint="Парола"                                android:textColorHint="@color/textSecondary"
             app:boxBackgroundMode="outline"
             app:boxStrokeColor="@color/colorPrimary"
             app:boxCornerRadiusBottomEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusTopStart="8dp"
-            app:passwordToggleEnabled="true"> <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edt_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:maxLength="100" android:textColor="@color/textPrimary" />
+            app:passwordToggleEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:maxLength="100"
+                android:textColor="@color/textPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -77,20 +77,19 @@
             style="@style/RoundedButton"
             android:layout_width="match_parent"
             android:layout_marginTop="32dp"
-            android:text="Log In"
-            android:backgroundTint="@color/colorSecondary" />
+            android:text="Вход"                                  android:backgroundTint="@color/colorSecondary" />
 
         <TextView
             android:id="@+id/txt_create_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Don't have an account? Create one!"
-            android:textColor="@color/buttonText"
+            android:layout_marginTop="132dp"
+            android:text="Нямате акаунт? Създайте!"               android:textColor="@color/buttonText"
             android:textSize="14sp"
             android:clickable="true"
             android:focusable="true"
-            android:padding="8dp" android:layout_gravity="center" />
+            android:padding="8dp"
+            android:layout_gravity="center" />
 
     </LinearLayout>
 
@@ -100,4 +99,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone" /> </FrameLayout>
+        android:visibility="gone" />
+
+</FrameLayout>

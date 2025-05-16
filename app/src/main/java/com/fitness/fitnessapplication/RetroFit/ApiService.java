@@ -3,15 +3,18 @@ package com.fitness.fitnessapplication.RetroFit;
 import com.fitness.fitnessapplication.DataModels.FoodLog; // Make sure this import is correct
 import com.fitness.fitnessapplication.DataModels.LoginResponse;
 import com.fitness.fitnessapplication.DataModels.RegisterResponse;
+import com.fitness.fitnessapplication.DataModels.UpdateResponse;
 import com.fitness.fitnessapplication.DataModels.User;
 import com.fitness.fitnessapplication.DataModels.DailyLogResponse;
 
 import java.util.List; // Import List
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Query;
 
 public interface ApiService {
@@ -34,4 +37,6 @@ public interface ApiService {
 
     @GET("/logs-by-date")
     Call<List<FoodLog>> getLogsForDate(@Query("date") String date); // Returns a List of FoodLog objects
+    @PUT("update-user-data") // Използваме HTTP PUT метод и пътя, дефиниран в бек-енда
+    Call<UpdateResponse> updateUserData(@Body Map<String, Object> updatedData);
 }
